@@ -1,0 +1,178 @@
+/* Action Vérité: optional player choice between Action and Vérité. */
+
+.draw-mode-card {
+  width: min(100%, 500px);
+  margin: 15px auto 0;
+  padding: 14px;
+  border: 1px solid #2b2631;
+  border-radius: 18px;
+  background: #17141b;
+}
+
+.draw-mode-card > strong {
+  display: block;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 13px;
+  color: #f4eef6;
+}
+
+.draw-mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.draw-mode-grid button {
+  min-height: 64px;
+  padding: 10px 8px;
+  border: 1px solid #302a36;
+  border-radius: 14px;
+  background: #1d1922;
+  color: #bdb4c0;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.draw-mode-grid button strong,
+.draw-mode-grid button small {
+  display: block;
+}
+
+.draw-mode-grid button strong {
+  font-size: 12px;
+  color: #f4eef6;
+}
+
+.draw-mode-grid button small {
+  margin-top: 3px;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #8f8792;
+}
+
+.draw-mode-grid button.selected {
+  border-color: rgba(var(--mode-accent-rgb), 0.48);
+  background: rgba(var(--mode-accent-rgb), 0.1);
+}
+
+.type-choice-sheet {
+  text-align: center;
+}
+
+.type-choice-sheet .chosen-player {
+  margin-top: 18px;
+}
+
+.type-choice-title {
+  margin: 24px auto 8px;
+  max-width: 420px;
+  font-size: clamp(25px, 7vw, 34px);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: #f8f3f9;
+}
+
+.type-choice-subtitle {
+  max-width: 340px;
+  margin: 0 auto 22px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9e95a2;
+}
+
+.type-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: min(100%, 460px);
+  margin: 0 auto;
+}
+
+.type-choice-button {
+  min-height: 112px;
+  padding: 18px 12px;
+  border: 1px solid #332d39;
+  border-radius: 20px;
+  background: #1c1821;
+  color: #f7f1f8;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.type-choice-button:active {
+  transform: scale(0.98);
+}
+
+.type-choice-button span,
+.type-choice-button strong,
+.type-choice-button small {
+  display: block;
+}
+
+.type-choice-button span {
+  width: 38px;
+  height: 38px;
+  margin: 0 auto 9px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.type-choice-button strong {
+  font-size: 17px;
+}
+
+.type-choice-button small {
+  margin-top: 4px;
+  font-size: 9px;
+  color: #9d949f;
+}
+
+.type-choice-button.truth {
+  border-color: rgba(91, 134, 224, 0.34);
+  background: rgba(91, 134, 224, 0.08);
+}
+
+.type-choice-button.truth span {
+  background: rgba(91, 134, 224, 0.18);
+  color: #b8ccff;
+}
+
+.type-choice-button.dare {
+  border-color: rgba(220, 102, 122, 0.34);
+  background: rgba(220, 102, 122, 0.08);
+}
+
+.type-choice-button.dare span {
+  background: rgba(220, 102, 122, 0.18);
+  color: #ffc0ca;
+}
+
+@media (max-width: 360px) {
+  .draw-mode-grid {
+    gap: 6px;
+  }
+
+  .draw-mode-grid button {
+    min-height: 60px;
+    padding-inline: 6px;
+  }
+
+  .type-choice-grid {
+    gap: 7px;
+  }
+
+  .type-choice-button {
+    min-height: 102px;
+    padding-inline: 8px;
+  }
+
+  .type-choice-button strong {
+    font-size: 15px;
+  }
+}
