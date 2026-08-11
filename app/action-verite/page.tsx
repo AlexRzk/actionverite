@@ -9,6 +9,8 @@ import {
   modeLabels,
 } from "@/data/challenges";
 
+type DrawMode = "random" | "player-choice";
+
 const wheelColors = [
   "#7456e8",
   "#d95887",
@@ -46,6 +48,7 @@ export default function ActionVeritePage() {
   const [players, setPlayers] = useState<string[]>([]);
   const [playerName, setPlayerName] = useState("");
   const [mode, setMode] = useState<GameMode>("soft");
+  const [drawMode, setDrawMode] = useState<DrawMode>("random");
   const [allowTruth, setAllowTruth] = useState(true);
   const [allowDare, setAllowDare] = useState(true);
   const [adultConfirmed, setAdultConfirmed] = useState(false);
@@ -66,9 +69,11 @@ export default function ActionVeritePage() {
         const parsed = JSON.parse(saved) as {
           players?: string[];
           mode?: GameMode;
+          drawMode?: DrawMode;
           allowTruth?: boolean;
           allowDare?: boolean;
         };
+
         if (Array.isArray(parsed.players)) {
           setPlayers(
             parsed.players
@@ -79,6 +84,9 @@ export default function ActionVeritePage() {
           );
         }
         if (parsed.mode && parsed.mode in modeLabels) setMode(parsed.mode);
+        if (parsed.drawMode === "random" || parsed.drawMode === "player-choice") {
+          setDrawMode(parsed.drawMode);
+        }
         if (typeof parsed.allowTruth === "boolean") setAllowTruth(parsed.allowTruth);
         if (typeof parsed.allowDare === "boolean") setAllowDare(parsed.allowDare);
       }
@@ -93,25 +101,31 @@ export default function ActionVeritePage() {
     if (!hydrated) return;
     window.localStorage.setItem(
       "action-verite-settings",
-      JSON.stringify({ players, mode, allowTruth, allowDare }),
+      JSON.stringify({ players, mode, drawMode, allowTruth, allowDare }),
     );
-  }, [players, mode, allowTruth, allowDare, hydrated]);
+  }, [players, mode, drawMode, allowTruth, allowDare, hydrated]);
 
   useEffect(() => {
     usedChallenges.current.clear();
     setChallenge(null);
     setSelectedPlayer(null);
-  }, [mode, allowTruth, allowDare]);
+  }, [mode, drawMode, allowTruth, allowDare]);
 
   const challengePool = useMemo(() => {
     const allowedTypes = new Set<ChallengeType>();
-    if (allowTruth) allowedTypes.add("truth");
-    if (allowDare) allowedTypes.add("dare");
+
+    if (drawMode === "player-choice") {
+      allowedTypes.add("truth");
+      allowedTypes.add("dare");
+    } else {
+      if (allowTruth) allowedTypes.add("truth");
+      if (allowDare) allowedTypes.add("dare");
+    }
 
     return modePools[mode]
       .flatMap((poolMode) => challenges[poolMode])
       .filter((item) => allowedTypes.has(item.type));
-  }, [allowDare, allowTruth, mode]);
+  }, [allowDare, allowTruth, drawMode, mode]);
 
   const wheelBackground = useMemo(() => {
     if (!players.length) return "#24202b";
@@ -149,6 +163,15 @@ export default function ActionVeritePage() {
     haptic(20);
   }
 
+  function chooseDrawMode(nextMode: DrawMode) {
+    setDrawMode(nextMode);
+    if (nextMode === "player-choice") {
+      setAllowTruth(true);
+      setAllowDare(true);
+    }
+    haptic(20);
+  }
+
   function goToAmbiance() {
     if (players.length < 2) return;
     setSetupStep(2);
@@ -157,8 +180,10 @@ export default function ActionVeritePage() {
   }
 
   function startGame() {
-    if (players.length < 2 || (!allowTruth && !allowDare)) return;
+    if (players.length < 2) return;
+    if (drawMode === "random" && !allowTruth && !allowDare) return;
     if (mode === "hot" && !adultConfirmed) return;
+
     usedChallenges.current.clear();
     setChallenge(null);
     setSelectedPlayer(null);
@@ -168,13 +193,20 @@ export default function ActionVeritePage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function pickChallenge() {
-    if (!challengePool.length) return null;
-    let available = challengePool.filter((item) => !usedChallenges.current.has(item.id));
+  function pickChallenge(type?: ChallengeType) {
+    const typedPool = type
+      ? challengePool.filter((item) => item.type === type)
+      : challengePool;
+
+    if (!typedPool.length) return null;
+
+    let available = typedPool.filter((item) => !usedChallenges.current.has(item.id));
+
     if (!available.length) {
-      usedChallenges.current.clear();
-      available = challengePool;
+      typedPool.forEach((item) => usedChallenges.current.delete(item.id));
+      available = typedPool;
     }
+
     const picked = available[Math.floor(Math.random() * available.length)];
     usedChallenges.current.add(picked.id);
     return picked;
@@ -200,16 +232,27 @@ export default function ActionVeritePage() {
     });
 
     window.setTimeout(() => {
-      setSelectedPlayer(players[selectedIndex]);
-      setChallenge(pickChallenge());
+      const player = players[selectedIndex];
+      setSelectedPlayer(player);
       setRound((current) => current + 1);
       setSpinning(false);
+
+      if (drawMode === "random") {
+        setChallenge(pickChallenge());
+      }
+
       haptic([55, 45, 90]);
     }, 3000);
   }
 
+  function chooseChallengeType(type: ChallengeType) {
+    setChallenge(pickChallenge(type));
+    haptic([30, 25, 45]);
+  }
+
   function replaceChallenge() {
-    setChallenge(pickChallenge());
+    if (!challenge) return;
+    setChallenge(pickChallenge(drawMode === "player-choice" ? challenge.type : undefined));
     haptic(20);
   }
 
@@ -231,7 +274,7 @@ export default function ActionVeritePage() {
 
   const canStart =
     players.length >= 2 &&
-    (allowTruth || allowDare) &&
+    (drawMode === "player-choice" || allowTruth || allowDare) &&
     (mode !== "hot" || adultConfirmed);
 
   return (
@@ -265,58 +308,153 @@ export default function ActionVeritePage() {
         <section className="setup-screen">
           {setupStep === 1 ? (
             <div className="setup-page setup-players">
-              <div className="screen-intro"><span className="step-label">Étape 1 sur 2</span><h1>Qui joue ce soir ?</h1><p>Ajoute les prénoms. Deux joueurs suffisent pour lancer la partie.</p></div>
+              <div className="screen-intro">
+                <span className="step-label">Étape 1 sur 2</span>
+                <h1>Qui joue ce soir ?</h1>
+                <p>Ajoute les prénoms. Deux joueurs suffisent pour lancer la partie.</p>
+              </div>
+
               <form className="add-player" onSubmit={addPlayer}>
                 <div className="input-shell">
                   <span className="input-plus">+</span>
-                  <input value={playerName} onChange={(event) => setPlayerName(event.target.value)} placeholder="Ajouter un prénom" maxLength={20} autoComplete="off" enterKeyHint="done" aria-label="Prénom du joueur" />
+                  <input
+                    value={playerName}
+                    onChange={(event) => setPlayerName(event.target.value)}
+                    placeholder="Ajouter un prénom"
+                    maxLength={20}
+                    autoComplete="off"
+                    enterKeyHint="done"
+                    aria-label="Prénom du joueur"
+                  />
                   <button type="submit" disabled={!playerName.trim() || players.length >= 12}>Ajouter</button>
                 </div>
               </form>
+
               <div className="player-section-head"><strong>Joueurs</strong><span>{players.length}/12</span></div>
+
               <div className={`player-list ${players.length === 0 ? "is-empty" : ""}`}>
                 {players.length ? players.map((player, index) => (
                   <div className="player-row" key={`${player}-${index}`}>
-                    <div className="player-avatar" style={{ "--avatar-color": wheelColors[index % wheelColors.length] } as CSSProperties}>{player.slice(0, 1).toUpperCase()}</div>
+                    <div className="player-avatar" style={{ "--avatar-color": wheelColors[index % wheelColors.length] } as CSSProperties}>
+                      {player.slice(0, 1).toUpperCase()}
+                    </div>
                     <span>{player}</span>
                     <button type="button" onClick={() => removePlayer(index)} aria-label={`Retirer ${player}`}>×</button>
                   </div>
                 )) : (
-                  <div className="empty-players"><div className="empty-icon">A/V</div><strong>La liste est vide</strong><p>Commence par ajouter les personnes autour de toi.</p></div>
+                  <div className="empty-players">
+                    <div className="empty-icon">A/V</div>
+                    <strong>La liste est vide</strong>
+                    <p>Commence par ajouter les personnes autour de toi.</p>
+                  </div>
                 )}
               </div>
+
               <div className="setup-bottom-space" />
               <div className="bottom-action-bar">
-                <button className="main-button" type="button" onClick={goToAmbiance} disabled={players.length < 2}><span>Choisir l’ambiance</span><b>→</b></button>
+                <button className="main-button" type="button" onClick={goToAmbiance} disabled={players.length < 2}>
+                  <span>Choisir l’ambiance</span><b>→</b>
+                </button>
                 {players.length < 2 && <small>Encore {2 - players.length} joueur{2 - players.length > 1 ? "s" : ""} à ajouter</small>}
               </div>
             </div>
           ) : (
             <div className="setup-page setup-mode">
-              <div className="screen-intro has-back"><button className="text-back" type="button" onClick={() => setSetupStep(1)}>← Joueurs</button><span className="step-label">Étape 2 sur 2</span><h1>Quelle ambiance ?</h1><p>Tu peux rester léger ou faire monter progressivement la température.</p></div>
+              <div className="screen-intro has-back">
+                <button className="text-back" type="button" onClick={() => setSetupStep(1)}>← Joueurs</button>
+                <span className="step-label">Étape 2 sur 2</span>
+                <h1>Quelle ambiance ?</h1>
+                <p>Tu peux rester léger ou faire monter progressivement la température.</p>
+              </div>
+
               <div className="mode-stack">
                 {(Object.keys(modeLabels) as GameMode[]).map((modeKey) => (
-                  <button type="button" key={modeKey} className={`mode-option mode-${modeKey} ${mode === modeKey ? "selected" : ""}`} onClick={() => chooseMode(modeKey)}>
+                  <button
+                    type="button"
+                    key={modeKey}
+                    className={`mode-option mode-${modeKey} ${mode === modeKey ? "selected" : ""}`}
+                    onClick={() => chooseMode(modeKey)}
+                  >
                     <span className="mode-number">{modeMeta[modeKey].number}</span>
-                    <span className="mode-text"><small>{modeMeta[modeKey].kicker}</small><strong>{modeLabels[modeKey].label}</strong><span>{modeLabels[modeKey].description}</span></span>
+                    <span className="mode-text">
+                      <small>{modeMeta[modeKey].kicker}</small>
+                      <strong>{modeLabels[modeKey].label}</strong>
+                      <span>{modeLabels[modeKey].description}</span>
+                    </span>
                     <span className="radio-mark">{mode === modeKey ? "✓" : ""}</span>
                   </button>
                 ))}
               </div>
-              <div className="preference-card">
-                <div className="preference-title"><div><strong>Dans la partie</strong><span>Choisis ce que vous voulez tirer</span></div></div>
-                <div className="choice-grid">
-                  <button type="button" className={allowTruth ? "selected" : ""} onClick={() => { if (allowTruth && !allowDare) return; setAllowTruth((value) => !value); haptic(15); }}><span>V</span><strong>Vérités</strong><i>{allowTruth ? "✓" : ""}</i></button>
-                  <button type="button" className={allowDare ? "selected" : ""} onClick={() => { if (allowDare && !allowTruth) return; setAllowDare((value) => !value); haptic(15); }}><span>A</span><strong>Actions</strong><i>{allowDare ? "✓" : ""}</i></button>
+
+              <div className="draw-mode-card">
+                <strong>Comment choisir la carte ?</strong>
+                <div className="draw-mode-grid">
+                  <button
+                    type="button"
+                    className={drawMode === "random" ? "selected" : ""}
+                    onClick={() => chooseDrawMode("random")}
+                  >
+                    <strong>Au hasard</strong>
+                    <small>Action ou Vérité est tiré automatiquement</small>
+                  </button>
+                  <button
+                    type="button"
+                    className={drawMode === "player-choice" ? "selected" : ""}
+                    onClick={() => chooseDrawMode("player-choice")}
+                  >
+                    <strong>Le joueur choisit</strong>
+                    <small>Après la roulette, il choisit Action ou Vérité</small>
+                  </button>
                 </div>
               </div>
-              {mode === "hot" && (
-                <label className="adult-confirm"><input type="checkbox" checked={adultConfirmed} onChange={(event) => setAdultConfirmed(event.target.checked)} /><span className="custom-check">{adultConfirmed ? "✓" : ""}</span><span><strong>Mode Hot réservé aux majeurs</strong><small>Je confirme que tous les participants ont 18 ans ou plus.</small></span></label>
+
+              {drawMode === "random" && (
+                <div className="preference-card">
+                  <div className="preference-title"><div><strong>Dans la partie</strong><span>Choisis ce que vous voulez tirer</span></div></div>
+                  <div className="choice-grid">
+                    <button
+                      type="button"
+                      className={allowTruth ? "selected" : ""}
+                      onClick={() => {
+                        if (allowTruth && !allowDare) return;
+                        setAllowTruth((value) => !value);
+                        haptic(15);
+                      }}
+                    >
+                      <span>V</span><strong>Vérités</strong><i>{allowTruth ? "✓" : ""}</i>
+                    </button>
+                    <button
+                      type="button"
+                      className={allowDare ? "selected" : ""}
+                      onClick={() => {
+                        if (allowDare && !allowTruth) return;
+                        setAllowDare((value) => !value);
+                        haptic(15);
+                      }}
+                    >
+                      <span>A</span><strong>Actions</strong><i>{allowDare ? "✓" : ""}</i>
+                    </button>
+                  </div>
+                </div>
               )}
+
+              {mode === "hot" && (
+                <label className="adult-confirm">
+                  <input type="checkbox" checked={adultConfirmed} onChange={(event) => setAdultConfirmed(event.target.checked)} />
+                  <span className="custom-check">{adultConfirmed ? "✓" : ""}</span>
+                  <span>
+                    <strong>Mode Hot réservé aux majeurs</strong>
+                    <small>Je confirme que tous les participants ont 18 ans ou plus.</small>
+                  </span>
+                </label>
+              )}
+
               <p className="safety-copy">Un défi ne vous convient pas ? Passez-le, sans justification.</p>
               <div className="setup-bottom-space" />
               <div className="bottom-action-bar">
-                <button className="main-button" type="button" onClick={startGame} disabled={!canStart}><span>Lancer la partie</span><b>→</b></button>
+                <button className="main-button" type="button" onClick={startGame} disabled={!canStart}>
+                  <span>Lancer la partie</span><b>→</b>
+                </button>
                 {!canStart && mode === "hot" && !adultConfirmed && <small>Confirme l’âge des participants pour continuer</small>}
               </div>
             </div>
@@ -324,21 +462,74 @@ export default function ActionVeritePage() {
         </section>
       ) : (
         <section className="game-screen">
-          <div className="game-copy"><span className={`mode-badge mode-${mode}`}>{modeLabels[mode].label}</span><h1>{spinning ? "Ça tourne…" : "À qui le tour ?"}</h1><p>{spinning ? "Le hasard est en train de choisir." : "Appuie sur la roue ou sur le bouton pour lancer."}</p></div>
+          <div className="game-copy">
+            <span className={`mode-badge mode-${mode}`}>{modeLabels[mode].label}</span>
+            <h1>{spinning ? "Ça tourne…" : "À qui le tour ?"}</h1>
+            <p>{spinning ? "Le hasard est en train de choisir." : "Appuie sur la roue ou sur le bouton pour lancer."}</p>
+          </div>
+
           <div className={`wheel-zone ${spinning ? "spinning" : ""}`}>
             <div className="wheel-pointer"><span /></div>
-            <button type="button" className="wheel" style={{ background: wheelBackground, transform: `rotate(${rotation}deg)` }} onClick={spinWheel} disabled={spinning} aria-label="Faire tourner la roulette">
+            <button
+              type="button"
+              className="wheel"
+              style={{ background: wheelBackground, transform: `rotate(${rotation}deg)` }}
+              onClick={spinWheel}
+              disabled={spinning}
+              aria-label="Faire tourner la roulette"
+            >
               {players.map((player, index) => {
                 const slice = 360 / players.length;
                 const angle = index * slice + slice / 2;
                 const compact = players.length > 8;
-                return <span className={`wheel-name ${compact ? "compact" : ""}`} key={`${player}-${index}`} style={{ transform: `rotate(${angle}deg) translateY(calc(var(--wheel-size) * -0.35)) rotate(${-angle}deg)` }}>{player.length > (compact ? 6 : 9) ? `${player.slice(0, compact ? 5 : 8)}…` : player}</span>;
+                return (
+                  <span
+                    className={`wheel-name ${compact ? "compact" : ""}`}
+                    key={`${player}-${index}`}
+                    style={{ transform: `rotate(${angle}deg) translateY(calc(var(--wheel-size) * -0.35)) rotate(${-angle}deg)` }}
+                  >
+                    {player.length > (compact ? 6 : 9) ? `${player.slice(0, compact ? 5 : 8)}…` : player}
+                  </span>
+                );
               })}
               <span className="wheel-hub"><b>GO</b><small>{spinning ? "..." : "toucher"}</small></span>
             </button>
           </div>
-          <div className="game-actions"><button className="spin-cta" type="button" onClick={spinWheel} disabled={spinning}>{spinning ? <><span className="loader" /> Tirage en cours</> : <>Tourner la roulette <span>→</span></>}</button><p>{round ? `Tour ${round} · ` : ""}{players.length} joueurs · {allowTruth && allowDare ? "Actions + Vérités" : allowTruth ? "Vérités" : "Actions"}</p></div>
+
+          <div className="game-actions">
+            <button className="spin-cta" type="button" onClick={spinWheel} disabled={spinning || Boolean(selectedPlayer)}>
+              {spinning ? <><span className="loader" /> Tirage en cours</> : <>Tourner la roulette <span>→</span></>}
+            </button>
+            <p>
+              {round ? `Tour ${round} · ` : ""}{players.length} joueurs · {drawMode === "player-choice" ? "Choix du joueur" : allowTruth && allowDare ? "Actions + Vérités" : allowTruth ? "Vérités" : "Actions"}
+            </p>
+          </div>
         </section>
+      )}
+
+      {phase === "game" && drawMode === "player-choice" && selectedPlayer && !challenge && !spinning && (
+        <div className="challenge-layer" role="dialog" aria-modal="true" aria-labelledby="type-choice-title">
+          <div className="challenge-backdrop" />
+          <div className="challenge-sheet type-choice-sheet">
+            <div className="sheet-handle" />
+            <div className="chosen-player">
+              <span>{selectedPlayer.slice(0, 1).toUpperCase()}</span>
+              <div><small>C’est au tour de</small><strong>{selectedPlayer}</strong></div>
+            </div>
+
+            <h2 className="type-choice-title" id="type-choice-title">Tu choisis quoi ?</h2>
+            <p className="type-choice-subtitle">La carte sera tirée uniquement dans la catégorie choisie.</p>
+
+            <div className="type-choice-grid">
+              <button className="type-choice-button truth" type="button" onClick={() => chooseChallengeType("truth")}>
+                <span>V</span><strong>Vérité</strong><small>Une question à laquelle répondre</small>
+              </button>
+              <button className="type-choice-button dare" type="button" onClick={() => chooseChallengeType("dare")}>
+                <span>A</span><strong>Action</strong><small>Un défi à réaliser</small>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {phase === "game" && challenge && selectedPlayer && (
@@ -346,10 +537,19 @@ export default function ActionVeritePage() {
           <div className="challenge-backdrop" />
           <div className="challenge-sheet">
             <div className="sheet-handle" />
-            <div className="challenge-topline"><span className={`challenge-type ${challenge.type}`}>{challenge.type === "truth" ? "VÉRITÉ" : "ACTION"}</span><span className="challenge-mode">{modeLabels[mode].label} · Tour {round}</span></div>
-            <div className="chosen-player"><span>{selectedPlayer.slice(0, 1).toUpperCase()}</span><div><small>C’est au tour de</small><strong>{selectedPlayer}</strong></div></div>
+            <div className="challenge-topline">
+              <span className={`challenge-type ${challenge.type}`}>{challenge.type === "truth" ? "VÉRITÉ" : "ACTION"}</span>
+              <span className="challenge-mode">{modeLabels[mode].label} · Tour {round}</span>
+            </div>
+            <div className="chosen-player">
+              <span>{selectedPlayer.slice(0, 1).toUpperCase()}</span>
+              <div><small>C’est au tour de</small><strong>{selectedPlayer}</strong></div>
+            </div>
             <h2 id="challenge-title">{challenge.text}</h2>
-            <div className="sheet-actions"><button className="pass-button" type="button" onClick={replaceChallenge}>Autre carte</button><button className="next-button" type="button" onClick={nextTurn}>Tour suivant <span>→</span></button></div>
+            <div className="sheet-actions">
+              <button className="pass-button" type="button" onClick={replaceChallenge}>Autre carte</button>
+              <button className="next-button" type="button" onClick={nextTurn}>Tour suivant <span>→</span></button>
+            </div>
             <p className="sheet-safety">Pas envie ? Changez de carte. Aucun défi n’est obligatoire.</p>
           </div>
         </div>
