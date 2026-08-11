@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import "./mobile-polish.css";
+import "./centered-mobile.css";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-manrope",
+});
 
 export const metadata: Metadata = {
   title: "Action Vérité — Jeu de soirée",
@@ -25,8 +33,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr">
-      <body>{children}</body>
+    <html lang="fr" className={manrope.variable}>
+      <body className={manrope.className}>{children}</body>
     </html>
   );
 }
