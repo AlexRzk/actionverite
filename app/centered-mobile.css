@@ -1,0 +1,453 @@
+/* Centered, phone-first presentation layer. */
+
+body {
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+}
+
+.app-shell {
+  width: min(100%, 620px);
+  padding-inline: clamp(14px, 4.5vw, 22px);
+}
+
+/* Header: brand stays visually centered, utility actions stay out of the way. */
+.app-header {
+  position: relative;
+  justify-content: center;
+  min-height: 68px;
+}
+
+.brand-button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.brand-copy {
+  text-align: center;
+}
+
+.brand-copy small {
+  display: none;
+}
+
+.step-indicator,
+.header-action {
+  position: absolute;
+  right: 0;
+}
+
+/* Remove labels that repeat information already obvious from the screen. */
+.step-label,
+.mode-number,
+.mode-text small,
+.preference-title span,
+.game-actions > p,
+.safety-copy,
+.challenge-mode {
+  display: none !important;
+}
+
+/* Main setup copy. */
+.screen-intro,
+.game-copy {
+  width: min(100%, 480px);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.screen-intro {
+  margin-bottom: 26px;
+}
+
+.screen-intro h1,
+.game-copy h1 {
+  max-width: 100%;
+  text-wrap: balance;
+  letter-spacing: -0.045em;
+}
+
+.screen-intro p,
+.game-copy p {
+  max-width: 390px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.has-back {
+  padding-top: 38px;
+}
+
+.text-back {
+  left: 50%;
+  transform: translateX(-50%);
+  top: -4px;
+  width: max-content;
+}
+
+/* Player entry and list. */
+.add-player {
+  width: min(100%, 500px);
+  margin-inline: auto;
+}
+
+.input-shell input {
+  text-align: center;
+}
+
+.player-section-head {
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.player-section-head span {
+  opacity: 0.65;
+}
+
+.player-list {
+  width: min(100%, 500px);
+  margin-inline: auto;
+}
+
+.player-row {
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+}
+
+.player-row > span {
+  text-align: center;
+}
+
+.empty-players {
+  text-align: center;
+}
+
+/* Mode selection: no dashboard-like left column, only the useful choice. */
+.mode-stack,
+.preference-card,
+.adult-confirm {
+  width: min(100%, 500px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mode-option {
+  position: relative;
+  display: flex;
+  min-height: 96px;
+  align-items: center;
+  justify-content: center;
+  padding: 17px 46px 17px 20px;
+  text-align: center;
+}
+
+.mode-text {
+  width: 100%;
+  text-align: center;
+}
+
+.mode-text strong {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.mode-text > span {
+  max-width: 330px;
+  margin-inline: auto;
+  line-height: 1.45;
+}
+
+.radio-mark {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.preference-title {
+  text-align: center;
+}
+
+.preference-title strong {
+  font-size: 13px;
+}
+
+.choice-grid button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.choice-grid button > span {
+  flex: 0 0 auto;
+}
+
+.choice-grid button i {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.adult-confirm {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.adult-confirm > span:last-child {
+  text-align: center;
+}
+
+.adult-confirm small {
+  max-width: 360px;
+  margin: 4px auto 0;
+}
+
+/* Main game view. */
+.game-screen {
+  text-align: center;
+}
+
+.game-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mode-badge {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.game-actions {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Challenge sheet: one focal point, no competing left/right text blocks. */
+.challenge-topline {
+  justify-content: center;
+}
+
+.chosen-player {
+  justify-content: center;
+  text-align: center;
+}
+
+.chosen-player > div {
+  text-align: center;
+}
+
+.challenge-sheet h2 {
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.sheet-actions {
+  width: min(100%, 460px);
+  margin-inline: auto;
+}
+
+.sheet-safety {
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.bottom-action-bar {
+  width: min(620px, 100%);
+}
+
+.main-button {
+  justify-content: center;
+  position: relative;
+  text-align: center;
+}
+
+.main-button b {
+  position: absolute;
+  right: 18px;
+}
+
+@media (max-width: 430px) {
+  .app-shell {
+    padding-inline: 14px;
+  }
+
+  .app-header {
+    min-height: 64px;
+    height: 64px;
+  }
+
+  .brand-symbol {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .brand-copy strong {
+    font-size: 13px;
+  }
+
+  .setup-page {
+    padding-top: 24px;
+  }
+
+  .screen-intro {
+    margin-bottom: 22px;
+  }
+
+  .screen-intro h1,
+  .game-copy h1 {
+    font-size: clamp(31px, 9.4vw, 40px);
+    line-height: 1.04;
+  }
+
+  .screen-intro p,
+  .game-copy p {
+    max-width: 340px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .input-shell {
+    min-height: 58px;
+    padding-left: 11px;
+  }
+
+  .input-plus {
+    font-size: 20px;
+  }
+
+  .player-row {
+    min-height: 58px;
+  }
+
+  .mode-option {
+    min-height: 88px;
+    border-radius: 17px;
+    padding: 14px 43px 14px 16px;
+  }
+
+  .mode-text strong {
+    font-size: 18px;
+  }
+
+  .mode-text > span {
+    font-size: 10.5px;
+  }
+
+  .preference-card {
+    margin-top: 15px;
+    padding: 14px;
+  }
+
+  .choice-grid {
+    margin-top: 11px;
+  }
+
+  .choice-grid button {
+    min-height: 54px;
+  }
+
+  .adult-confirm {
+    padding: 12px;
+  }
+
+  .game-screen {
+    min-height: calc(100dvh - 64px);
+    padding-top: 20px;
+  }
+
+  .wheel-zone {
+    margin-top: clamp(22px, 5vh, 36px);
+  }
+
+  .challenge-sheet {
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+
+  .chosen-player {
+    margin-top: 20px;
+  }
+
+  .challenge-sheet h2 {
+    margin-top: 24px;
+    margin-bottom: 28px;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-shell {
+    padding-inline: 12px;
+  }
+
+  .brand-copy strong {
+    font-size: 12px;
+  }
+
+  .step-indicator span {
+    width: 15px;
+  }
+
+  .step-indicator span.active {
+    width: 21px;
+  }
+
+  .screen-intro h1,
+  .game-copy h1 {
+    font-size: 30px;
+  }
+
+  .screen-intro p,
+  .game-copy p {
+    font-size: 12px;
+  }
+
+  .input-shell button {
+    padding-inline: 10px;
+    font-size: 11px;
+  }
+
+  .mode-option {
+    padding-right: 38px;
+  }
+
+  .radio-mark {
+    right: 10px;
+  }
+
+  .mode-text > span {
+    font-size: 10px;
+  }
+
+  .choice-grid button {
+    padding-inline: 7px;
+    font-size: 10px;
+  }
+
+  .adult-confirm strong {
+    font-size: 10.5px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .game-copy {
+    text-align: center;
+  }
+
+  .game-copy p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
