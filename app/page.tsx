@@ -10,18 +10,18 @@ import {
 } from "@/data/challenges";
 
 const wheelColors = [
-  "#7c3aed",
-  "#db2777",
-  "#f97316",
-  "#2563eb",
-  "#059669",
-  "#c026d3",
-  "#dc2626",
-  "#0891b2",
-  "#9333ea",
-  "#ea580c",
-  "#16a34a",
-  "#4f46e5",
+  "#7456e8",
+  "#d95887",
+  "#d9824b",
+  "#4f7fd8",
+  "#4b9b7b",
+  "#a55fc5",
+  "#c95b5b",
+  "#4e91a5",
+  "#8a61d0",
+  "#cf7044",
+  "#68a05f",
+  "#5f69ca",
 ];
 
 const modePools: Record<GameMode, GameMode[]> = {
@@ -29,6 +29,18 @@ const modePools: Record<GameMode, GameMode[]> = {
   spicy: ["soft", "spicy"],
   hot: ["soft", "spicy", "hot"],
 };
+
+const modeMeta: Record<GameMode, { number: string; kicker: string }> = {
+  soft: { number: "01", kicker: "Pour commencer tranquille" },
+  spicy: { number: "02", kicker: "Quand la soirée se chauffe" },
+  hot: { number: "03", kicker: "Pour adultes consentants" },
+};
+
+function haptic(pattern: number | number[] = 35) {
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    navigator.vibrate(pattern);
+  }
+}
 
 export default function Home() {
   const [players, setPlayers] = useState<string[]>([]);
@@ -38,6 +50,7 @@ export default function Home() {
   const [allowDare, setAllowDare] = useState(true);
   const [adultConfirmed, setAdultConfirmed] = useState(false);
   const [phase, setPhase] = useState<"setup" | "game">("setup");
+  const [setupStep, setSetupStep] = useState<1 | 2>(1);
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
@@ -63,7 +76,7 @@ export default function Home() {
         if (typeof parsed.allowDare === "boolean") setAllowDare(parsed.allowDare);
       }
     } catch {
-      // A corrupted local preference should never block the game.
+      // Local preferences must never block the game.
     } finally {
       setHydrated(true);
     }
@@ -94,7 +107,7 @@ export default function Home() {
   }, [allowDare, allowTruth, mode]);
 
   const wheelBackground = useMemo(() => {
-    if (!players.length) return "#21152e";
+    if (!players.length) return "#24202b";
     const slice = 360 / players.length;
     const stops = players.flatMap((_, index) => {
       const start = index * slice;
@@ -115,10 +128,25 @@ export default function Home() {
     }
     setPlayers((current) => [...current, cleanName]);
     setPlayerName("");
+    haptic(20);
   }
 
   function removePlayer(indexToRemove: number) {
     setPlayers((current) => current.filter((_, index) => index !== indexToRemove));
+    haptic(15);
+  }
+
+  function chooseMode(nextMode: GameMode) {
+    setMode(nextMode);
+    if (nextMode !== "hot") setAdultConfirmed(false);
+    haptic(20);
+  }
+
+  function goToAmbiance() {
+    if (players.length < 2) return;
+    setSetupStep(2);
+    haptic(20);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function startGame() {
@@ -128,6 +156,8 @@ export default function Home() {
     setChallenge(null);
     setSelectedPlayer(null);
     setPhase("game");
+    haptic([25, 30, 25]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function pickChallenge() {
@@ -152,6 +182,8 @@ export default function Home() {
     setChallenge(null);
     setSelectedPlayer(null);
     setSpinning(true);
+    haptic(25);
+
     setRotation((currentRotation) => {
       const currentAngle = ((currentRotation % 360) + 360) % 360;
       const targetAngle = (360 - selectedCenter) % 360;
@@ -163,19 +195,28 @@ export default function Home() {
       setSelectedPlayer(players[selectedIndex]);
       setChallenge(pickChallenge());
       setSpinning(false);
-      if ("vibrate" in navigator) navigator.vibrate(60);
-    }, 3200);
+      haptic([55, 45, 90]);
+    }, 3000);
   }
 
   function replaceChallenge() {
     setChallenge(pickChallenge());
+    haptic(20);
+  }
+
+  function nextTurn() {
+    setChallenge(null);
+    setSelectedPlayer(null);
+    window.setTimeout(spinWheel, 180);
   }
 
   function resetGame() {
     setPhase("setup");
+    setSetupStep(1);
     setChallenge(null);
     setSelectedPlayer(null);
     setSpinning(false);
+    haptic(20);
   }
 
   const canStart =
@@ -184,211 +225,270 @@ export default function Home() {
     (mode !== "hot" || adultConfirmed);
 
   return (
-    <main className="shell">
-      <div className="ambient ambient-one" />
-      <div className="ambient ambient-two" />
-
-      <header className="topbar">
-        <div className="brand">
-          <div className="brand-mark">AV</div>
-          <div>
+    <main className={`app-shell ${phase === "game" ? "in-game" : ""}`}>
+      <header className="app-header">
+        <button
+          className="brand-button"
+          type="button"
+          onClick={() => {
+            if (phase === "game") resetGame();
+            else if (setupStep === 2) setSetupStep(1);
+          }}
+          aria-label="Retour"
+        >
+          <span className="brand-symbol">A/V</span>
+          <span className="brand-copy">
             <strong>Action Vérité</strong>
-            <span>le jeu de soirée</span>
+            <small>{phase === "game" ? `${players.length} joueurs` : "jeu de soirée"}</small>
+          </span>
+        </button>
+
+        {phase === "setup" ? (
+          <div className="step-indicator" aria-label={`Étape ${setupStep} sur 2`}>
+            <span className={setupStep >= 1 ? "active" : ""} />
+            <span className={setupStep >= 2 ? "active" : ""} />
           </div>
-        </div>
-        <div className="pill">{modeLabels[mode].emoji} {modeLabels[mode].label}</div>
+        ) : (
+          <button className="header-action" type="button" onClick={resetGame} disabled={spinning}>
+            Réglages
+          </button>
+        )}
       </header>
 
       {phase === "setup" ? (
-        <section className="setup-grid">
-          <div className="hero-card panel">
-            <p className="eyebrow">PRÊTS À VOUS AFFICHER ?</p>
-            <h1>Une roulette. Des vérités. Des défis.</h1>
-            <p className="hero-copy">
-              Ajoute les joueurs, choisis l’ambiance et laisse le hasard décider qui passe à la casserole.
-            </p>
+        <section className="setup-screen">
+          {setupStep === 1 ? (
+            <div className="setup-page setup-players">
+              <div className="screen-intro">
+                <span className="step-label">Étape 1 sur 2</span>
+                <h1>Qui joue ce soir ?</h1>
+                <p>Ajoute les prénoms. Deux joueurs suffisent pour lancer la partie.</p>
+              </div>
 
-            <form className="player-form" onSubmit={addPlayer}>
-              <input
-                value={playerName}
-                onChange={(event) => setPlayerName(event.target.value)}
-                placeholder="Prénom d’un joueur"
-                maxLength={20}
-                aria-label="Prénom du joueur"
-              />
-              <button type="submit" disabled={!playerName.trim() || players.length >= 12}>
-                Ajouter
-              </button>
-            </form>
+              <form className="add-player" onSubmit={addPlayer}>
+                <div className="input-shell">
+                  <span className="input-plus">+</span>
+                  <input
+                    value={playerName}
+                    onChange={(event) => setPlayerName(event.target.value)}
+                    placeholder="Ajouter un prénom"
+                    maxLength={20}
+                    autoComplete="off"
+                    enterKeyHint="done"
+                    aria-label="Prénom du joueur"
+                  />
+                  <button type="submit" disabled={!playerName.trim() || players.length >= 12}>
+                    Ajouter
+                  </button>
+                </div>
+              </form>
 
-            <div className="players-wrap">
-              {players.length ? (
-                players.map((player, index) => (
+              <div className="player-section-head">
+                <strong>Joueurs</strong>
+                <span>{players.length}/12</span>
+              </div>
+
+              <div className={`player-list ${players.length === 0 ? "is-empty" : ""}`}>
+                {players.length ? (
+                  players.map((player, index) => (
+                    <div className="player-row" key={`${player}-${index}`}>
+                      <div className="player-avatar" style={{ "--avatar-color": wheelColors[index % wheelColors.length] } as React.CSSProperties}>
+                        {player.slice(0, 1).toUpperCase()}
+                      </div>
+                      <span>{player}</span>
+                      <button type="button" onClick={() => removePlayer(index)} aria-label={`Retirer ${player}`}>
+                        ×
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="empty-players">
+                    <div className="empty-icon">A/V</div>
+                    <strong>La liste est vide</strong>
+                    <p>Commence par ajouter les personnes autour de toi.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="setup-bottom-space" />
+              <div className="bottom-action-bar">
+                <button className="main-button" type="button" onClick={goToAmbiance} disabled={players.length < 2}>
+                  <span>Choisir l’ambiance</span>
+                  <b>→</b>
+                </button>
+                {players.length < 2 && <small>Encore {2 - players.length} joueur{2 - players.length > 1 ? "s" : ""} à ajouter</small>}
+              </div>
+            </div>
+          ) : (
+            <div className="setup-page setup-mode">
+              <div className="screen-intro has-back">
+                <button className="text-back" type="button" onClick={() => setSetupStep(1)}>
+                  ← Joueurs
+                </button>
+                <span className="step-label">Étape 2 sur 2</span>
+                <h1>Quelle ambiance ?</h1>
+                <p>Tu peux rester léger ou faire monter progressivement la température.</p>
+              </div>
+
+              <div className="mode-stack">
+                {(Object.keys(modeLabels) as GameMode[]).map((modeKey) => (
                   <button
                     type="button"
-                    className="player-chip"
-                    key={`${player}-${index}`}
-                    onClick={() => removePlayer(index)}
-                    title="Retirer ce joueur"
+                    key={modeKey}
+                    className={`mode-option mode-${modeKey} ${mode === modeKey ? "selected" : ""}`}
+                    onClick={() => chooseMode(modeKey)}
                   >
-                    <span>{player.slice(0, 1).toUpperCase()}</span>
-                    {player}
-                    <b>×</b>
+                    <span className="mode-number">{modeMeta[modeKey].number}</span>
+                    <span className="mode-text">
+                      <small>{modeMeta[modeKey].kicker}</small>
+                      <strong>{modeLabels[modeKey].label}</strong>
+                      <span>{modeLabels[modeKey].description}</span>
+                    </span>
+                    <span className="radio-mark">{mode === modeKey ? "✓" : ""}</span>
                   </button>
-                ))
-              ) : (
-                <p className="empty-state">Ajoute au moins 2 joueurs pour commencer.</p>
-              )}
-            </div>
-            <div className="microcopy">{players.length}/12 joueurs</div>
-          </div>
+                ))}
+              </div>
 
-          <div className="settings panel">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">AMBIANCE</p>
-                <h2>Choisis ton niveau</h2>
+              <div className="preference-card">
+                <div className="preference-title">
+                  <div>
+                    <strong>Dans la partie</strong>
+                    <span>Choisis ce que vous voulez tirer</span>
+                  </div>
+                </div>
+                <div className="choice-grid">
+                  <button
+                    type="button"
+                    className={allowTruth ? "selected" : ""}
+                    onClick={() => {
+                      if (allowTruth && !allowDare) return;
+                      setAllowTruth((value) => !value);
+                      haptic(15);
+                    }}
+                  >
+                    <span>V</span>
+                    <strong>Vérités</strong>
+                    <i>{allowTruth ? "✓" : ""}</i>
+                  </button>
+                  <button
+                    type="button"
+                    className={allowDare ? "selected" : ""}
+                    onClick={() => {
+                      if (allowDare && !allowTruth) return;
+                      setAllowDare((value) => !value);
+                      haptic(15);
+                    }}
+                  >
+                    <span>A</span>
+                    <strong>Actions</strong>
+                    <i>{allowDare ? "✓" : ""}</i>
+                  </button>
+                </div>
+              </div>
+
+              {mode === "hot" && (
+                <label className="adult-confirm">
+                  <input
+                    type="checkbox"
+                    checked={adultConfirmed}
+                    onChange={(event) => setAdultConfirmed(event.target.checked)}
+                  />
+                  <span className="custom-check">{adultConfirmed ? "✓" : ""}</span>
+                  <span>
+                    <strong>Mode Hot réservé aux majeurs</strong>
+                    <small>Je confirme que tous les participants ont 18 ans ou plus.</small>
+                  </span>
+                </label>
+              )}
+
+              <p className="safety-copy">Un défi ne vous convient pas ? Passez-le, sans justification.</p>
+              <div className="setup-bottom-space" />
+              <div className="bottom-action-bar">
+                <button className="main-button" type="button" onClick={startGame} disabled={!canStart}>
+                  <span>Lancer la partie</span>
+                  <b>→</b>
+                </button>
+                {!canStart && mode === "hot" && !adultConfirmed && <small>Confirme l’âge des participants pour continuer</small>}
               </div>
             </div>
-
-            <div className="mode-list">
-              {(Object.keys(modeLabels) as GameMode[]).map((modeKey) => (
-                <button
-                  type="button"
-                  key={modeKey}
-                  className={`mode-card ${mode === modeKey ? "selected" : ""}`}
-                  onClick={() => {
-                    setMode(modeKey);
-                    if (modeKey !== "hot") setAdultConfirmed(false);
-                  }}
-                >
-                  <span className="mode-emoji">{modeLabels[modeKey].emoji}</span>
-                  <span>
-                    <strong>{modeLabels[modeKey].label}</strong>
-                    <small>{modeLabels[modeKey].description}</small>
-                  </span>
-                  <i>{mode === modeKey ? "✓" : ""}</i>
-                </button>
-              ))}
-            </div>
-
-            <div className="type-row">
-              <button
-                type="button"
-                className={`type-toggle ${allowTruth ? "active" : ""}`}
-                onClick={() => setAllowTruth((value) => !value)}
-              >
-                <span>💬</span> Vérités
-              </button>
-              <button
-                type="button"
-                className={`type-toggle ${allowDare ? "active" : ""}`}
-                onClick={() => setAllowDare((value) => !value)}
-              >
-                <span>⚡</span> Actions
-              </button>
-            </div>
-
-            {mode === "hot" && (
-              <label className="adult-check">
-                <input
-                  type="checkbox"
-                  checked={adultConfirmed}
-                  onChange={(event) => setAdultConfirmed(event.target.checked)}
-                />
-                <span>Je confirme que tous les joueurs participant au mode Hot sont majeurs.</span>
-              </label>
-            )}
-
-            <button className="primary-cta" type="button" onClick={startGame} disabled={!canStart}>
-              Lancer la partie <span>→</span>
-            </button>
-            <p className="consent-note">Tout défi peut être passé, sans justification. Le consentement reste la règle.</p>
-          </div>
+          )}
         </section>
       ) : (
-        <section className="game-layout">
-          <div className="game-panel panel">
-            <div className="game-head">
-              <div>
-                <p className="eyebrow">TOUR EN COURS</p>
-                <h2>{spinning ? "La roulette tourne…" : selectedPlayer ? `À toi, ${selectedPlayer}` : "Qui sera choisi ?"}</h2>
-              </div>
-              <button className="ghost-button" type="button" onClick={resetGame} disabled={spinning}>
-                Réglages
-              </button>
-            </div>
-
-            <div className="wheel-stage">
-              <div className="pointer">▼</div>
-              <button
-                type="button"
-                className={`wheel ${spinning ? "is-spinning" : ""}`}
-                style={{ background: wheelBackground, transform: `rotate(${rotation}deg)` }}
-                onClick={spinWheel}
-                disabled={spinning}
-                aria-label="Faire tourner la roulette"
-              >
-                {players.map((player, index) => {
-                  const slice = 360 / players.length;
-                  const angle = index * slice + slice / 2;
-                  return (
-                    <span
-                      className="wheel-name"
-                      key={`${player}-${index}`}
-                      style={{ transform: `rotate(${angle}deg) translateY(-112px) rotate(${-angle}deg)` }}
-                    >
-                      {player.length > 9 ? `${player.slice(0, 8)}…` : player}
-                    </span>
-                  );
-                })}
-                <span className="wheel-center">GO</span>
-              </button>
-            </div>
-
-            {!selectedPlayer && !spinning && (
-              <button className="spin-button" type="button" onClick={spinWheel}>
-                Tourner la roulette
-              </button>
-            )}
-
-            {spinning && <div className="status-line"><span /> Le hasard fait son choix…</div>}
+        <section className="game-screen">
+          <div className="game-copy">
+            <span className={`mode-badge mode-${mode}`}>{modeLabels[mode].label}</span>
+            <h1>{spinning ? "Ça tourne…" : "À qui le tour ?"}</h1>
+            <p>{spinning ? "Le hasard est en train de choisir." : "Appuie sur la roue ou sur le bouton pour lancer."}</p>
           </div>
 
-          <aside className={`challenge-card panel ${challenge ? "revealed" : "waiting"}`}>
-            {challenge && selectedPlayer ? (
-              <>
-                <div className={`challenge-kind ${challenge.type}`}>
-                  {challenge.type === "truth" ? "💬 VÉRITÉ" : "⚡ ACTION"}
-                </div>
-                <p className="challenge-player">Pour {selectedPlayer}</p>
-                <h3>{challenge.text}</h3>
-                <div className="challenge-actions">
-                  <button type="button" className="secondary-button" onClick={replaceChallenge}>
-                    Passer
-                  </button>
-                  <button type="button" className="primary-cta compact" onClick={spinWheel}>
-                    Tour suivant →
-                  </button>
-                </div>
-                <p className="consent-note">Pas envie ? Passe. Aucun gage ne vaut un malaise.</p>
-              </>
-            ) : (
-              <div className="waiting-content">
-                <span>🎯</span>
-                <h3>Le défi apparaîtra ici</h3>
-                <p>Fais tourner la roulette pour tirer un joueur et une carte au hasard.</p>
-              </div>
-            )}
-          </aside>
+          <div className={`wheel-zone ${spinning ? "spinning" : ""}`}>
+            <div className="wheel-pointer"><span /></div>
+            <button
+              type="button"
+              className="wheel"
+              style={{ background: wheelBackground, transform: `rotate(${rotation}deg)` }}
+              onClick={spinWheel}
+              disabled={spinning}
+              aria-label="Faire tourner la roulette"
+            >
+              {players.map((player, index) => {
+                const slice = 360 / players.length;
+                const angle = index * slice + slice / 2;
+                const compact = players.length > 8;
+                return (
+                  <span
+                    className={`wheel-name ${compact ? "compact" : ""}`}
+                    key={`${player}-${index}`}
+                    style={{ transform: `rotate(${angle}deg) translateY(${compact ? "-108px" : "-118px"}) rotate(${-angle}deg)` }}
+                  >
+                    {player.length > (compact ? 6 : 9) ? `${player.slice(0, compact ? 5 : 8)}…` : player}
+                  </span>
+                );
+              })}
+              <span className="wheel-hub"><b>GO</b><small>toucher</small></span>
+            </button>
+          </div>
+
+          <div className="game-actions">
+            <button className="spin-cta" type="button" onClick={spinWheel} disabled={spinning}>
+              {spinning ? <><span className="loader" /> Tirage en cours</> : <>Tourner la roulette <span>→</span></>}
+            </button>
+            <p>{players.length} joueurs · {allowTruth && allowDare ? "Actions + Vérités" : allowTruth ? "Vérités" : "Actions"}</p>
+          </div>
         </section>
       )}
 
-      <footer>
-        <span>Action Vérité</span>
-        <span>•</span>
-        <span>100 % local, aucune donnée envoyée</span>
-      </footer>
+      {phase === "game" && challenge && selectedPlayer && (
+        <div className="challenge-layer" role="dialog" aria-modal="true" aria-labelledby="challenge-title">
+          <div className="challenge-backdrop" />
+          <div className="challenge-sheet">
+            <div className="sheet-handle" />
+            <div className="challenge-topline">
+              <span className={`challenge-type ${challenge.type}`}>
+                {challenge.type === "truth" ? "VÉRITÉ" : "ACTION"}
+              </span>
+              <span className="challenge-mode">{modeLabels[mode].label}</span>
+            </div>
+
+            <div className="chosen-player">
+              <span>{selectedPlayer.slice(0, 1).toUpperCase()}</span>
+              <div><small>C’est au tour de</small><strong>{selectedPlayer}</strong></div>
+            </div>
+
+            <h2 id="challenge-title">{challenge.text}</h2>
+
+            <div className="sheet-actions">
+              <button className="pass-button" type="button" onClick={replaceChallenge}>
+                Passer
+              </button>
+              <button className="next-button" type="button" onClick={nextTurn}>
+                Tour suivant <span>→</span>
+              </button>
+            </div>
+            <p className="sheet-safety">Pas envie ? On passe. Le consentement passe toujours avant le jeu.</p>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
