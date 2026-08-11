@@ -3,6 +3,8 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import "./mobile-polish.css";
 import "./centered-mobile.css";
+import "./hub.css";
+import "./never.css";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -11,13 +13,13 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Action Vérité — Jeu de soirée",
-  description: "Une roulette Action ou Vérité rapide, fun et personnalisable pour jouer entre amis.",
-  applicationName: "Action Vérité",
+  title: "Soirée — Jeux entre amis",
+  description: "Des jeux de soirée simples et rapides à lancer entre amis.",
+  applicationName: "Soirée",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Action Vérité",
+    title: "Soirée",
   },
   formatDetection: {
     telephone: false,
