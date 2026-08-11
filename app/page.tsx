@@ -495,7 +495,7 @@ export default function Home() {
               <span className={`challenge-type ${challenge.type}`}>
                 {challenge.type === "truth" ? "VÉRITÉ" : "ACTION"}
               </span>
-              <span className="challenge-mode">{modeLabels[mode]} · Tour {round}</span>
+              <span className="challenge-mode">{modeLabels[mode].label} · Tour {round}</span>
             </div>
 
             <div className="chosen-player">
