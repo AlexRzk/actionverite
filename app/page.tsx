@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { CSSProperties, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   Challenge,
   ChallengeType,
@@ -55,6 +55,7 @@ export default function Home() {
   const [rotation, setRotation] = useState(0);
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [round, setRound] = useState(0);
   const [hydrated, setHydrated] = useState(false);
   const usedChallenges = useRef<Set<string>>(new Set());
 
@@ -69,7 +70,13 @@ export default function Home() {
           allowDare?: boolean;
         };
         if (Array.isArray(parsed.players)) {
-          setPlayers(parsed.players.filter((name) => typeof name === "string").slice(0, 12));
+          setPlayers(
+            parsed.players
+              .filter((name) => typeof name === "string")
+              .map((name) => name.trim().slice(0, 20))
+              .filter(Boolean)
+              .slice(0, 12),
+          );
         }
         if (parsed.mode && parsed.mode in modeLabels) setMode(parsed.mode);
         if (typeof parsed.allowTruth === "boolean") setAllowTruth(parsed.allowTruth);
@@ -155,6 +162,7 @@ export default function Home() {
     usedChallenges.current.clear();
     setChallenge(null);
     setSelectedPlayer(null);
+    setRound(0);
     setPhase("game");
     haptic([25, 30, 25]);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -194,6 +202,7 @@ export default function Home() {
     window.setTimeout(() => {
       setSelectedPlayer(players[selectedIndex]);
       setChallenge(pickChallenge());
+      setRound((current) => current + 1);
       setSpinning(false);
       haptic([55, 45, 90]);
     }, 3000);
@@ -207,6 +216,7 @@ export default function Home() {
   function nextTurn() {
     setChallenge(null);
     setSelectedPlayer(null);
+    haptic(18);
     window.setTimeout(spinWheel, 180);
   }
 
@@ -225,7 +235,7 @@ export default function Home() {
     (mode !== "hot" || adultConfirmed);
 
   return (
-    <main className={`app-shell ${phase === "game" ? "in-game" : ""}`}>
+    <main className={`app-shell theme-${mode} ${phase === "game" ? "in-game" : ""}`}>
       <header className="app-header">
         <button
           className="brand-button"
@@ -292,7 +302,10 @@ export default function Home() {
                 {players.length ? (
                   players.map((player, index) => (
                     <div className="player-row" key={`${player}-${index}`}>
-                      <div className="player-avatar" style={{ "--avatar-color": wheelColors[index % wheelColors.length] } as React.CSSProperties}>
+                      <div
+                        className="player-avatar"
+                        style={{ "--avatar-color": wheelColors[index % wheelColors.length] } as CSSProperties}
+                      >
                         {player.slice(0, 1).toUpperCase()}
                       </div>
                       <span>{player}</span>
@@ -316,7 +329,9 @@ export default function Home() {
                   <span>Choisir l’ambiance</span>
                   <b>→</b>
                 </button>
-                {players.length < 2 && <small>Encore {2 - players.length} joueur{2 - players.length > 1 ? "s" : ""} à ajouter</small>}
+                {players.length < 2 && (
+                  <small>Encore {2 - players.length} joueur{2 - players.length > 1 ? "s" : ""} à ajouter</small>
+                )}
               </div>
             </div>
           ) : (
@@ -408,7 +423,9 @@ export default function Home() {
                   <span>Lancer la partie</span>
                   <b>→</b>
                 </button>
-                {!canStart && mode === "hot" && !adultConfirmed && <small>Confirme l’âge des participants pour continuer</small>}
+                {!canStart && mode === "hot" && !adultConfirmed && (
+                  <small>Confirme l’âge des participants pour continuer</small>
+                )}
               </div>
             </div>
           )}
@@ -439,21 +456,32 @@ export default function Home() {
                   <span
                     className={`wheel-name ${compact ? "compact" : ""}`}
                     key={`${player}-${index}`}
-                    style={{ transform: `rotate(${angle}deg) translateY(${compact ? "-108px" : "-118px"}) rotate(${-angle}deg)` }}
+                    style={{
+                      transform: `rotate(${angle}deg) translateY(calc(var(--wheel-size) * -0.35)) rotate(${-angle}deg)`,
+                    }}
                   >
                     {player.length > (compact ? 6 : 9) ? `${player.slice(0, compact ? 5 : 8)}…` : player}
                   </span>
                 );
               })}
-              <span className="wheel-hub"><b>GO</b><small>toucher</small></span>
+              <span className="wheel-hub">
+                <b>GO</b>
+                <small>{spinning ? "..." : "toucher"}</small>
+              </span>
             </button>
           </div>
 
           <div className="game-actions">
             <button className="spin-cta" type="button" onClick={spinWheel} disabled={spinning}>
-              {spinning ? <><span className="loader" /> Tirage en cours</> : <>Tourner la roulette <span>→</span></>}
+              {spinning ? (
+                <><span className="loader" /> Tirage en cours</>
+              ) : (
+                <>Tourner la roulette <span>→</span></>
+              )}
             </button>
-            <p>{players.length} joueurs · {allowTruth && allowDare ? "Actions + Vérités" : allowTruth ? "Vérités" : "Actions"}</p>
+            <p>
+              {round ? `Tour ${round} · ` : ""}{players.length} joueurs · {allowTruth && allowDare ? "Actions + Vérités" : allowTruth ? "Vérités" : "Actions"}
+            </p>
           </div>
         </section>
       )}
@@ -467,25 +495,28 @@ export default function Home() {
               <span className={`challenge-type ${challenge.type}`}>
                 {challenge.type === "truth" ? "VÉRITÉ" : "ACTION"}
               </span>
-              <span className="challenge-mode">{modeLabels[mode].label}</span>
+              <span className="challenge-mode">{modeLabels[mode]} · Tour {round}</span>
             </div>
 
             <div className="chosen-player">
               <span>{selectedPlayer.slice(0, 1).toUpperCase()}</span>
-              <div><small>C’est au tour de</small><strong>{selectedPlayer}</strong></div>
+              <div>
+                <small>C’est au tour de</small>
+                <strong>{selectedPlayer}</strong>
+              </div>
             </div>
 
             <h2 id="challenge-title">{challenge.text}</h2>
 
             <div className="sheet-actions">
               <button className="pass-button" type="button" onClick={replaceChallenge}>
-                Passer
+                Autre carte
               </button>
               <button className="next-button" type="button" onClick={nextTurn}>
                 Tour suivant <span>→</span>
               </button>
             </div>
-            <p className="sheet-safety">Pas envie ? On passe. Le consentement passe toujours avant le jeu.</p>
+            <p className="sheet-safety">Pas envie ? Changez de carte. Aucun défi n’est obligatoire.</p>
           </div>
         </div>
       )}
