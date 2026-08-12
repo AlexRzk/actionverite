@@ -2,37 +2,46 @@
 
 .draw-mode-card {
   width: min(100%, 500px);
-  margin: 15px auto 0;
-  padding: 14px;
-  border: 1px solid #2b2631;
-  border-radius: 18px;
-  background: #17141b;
+  margin: 20px auto 0;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.015);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .draw-mode-card > strong {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   text-align: center;
   font-size: 13px;
   color: #f4eef6;
+  font-weight: 800;
 }
 
 .draw-mode-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 
 .draw-mode-grid button {
-  min-height: 64px;
-  padding: 10px 8px;
-  border: 1px solid #302a36;
-  border-radius: 14px;
-  background: #1d1922;
+  min-height: 72px;
+  padding: 12px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
   color: #bdb4c0;
   font: inherit;
   text-align: center;
   cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.draw-mode-grid button:active {
+  transform: scale(0.975);
 }
 
 .draw-mode-grid button strong,
@@ -41,20 +50,24 @@
 }
 
 .draw-mode-grid button strong {
-  font-size: 12px;
+  font-size: 13px;
   color: #f4eef6;
+  font-weight: 750;
 }
 
 .draw-mode-grid button small {
-  margin-top: 3px;
-  font-size: 9px;
+  margin-top: 4px;
+  font-size: 10px;
   line-height: 1.35;
-  color: #8f8792;
+  color: #8c8290;
 }
 
 .draw-mode-grid button.selected {
-  border-color: rgba(var(--mode-accent-rgb), 0.48);
-  background: rgba(var(--mode-accent-rgb), 0.1);
+  border-color: rgba(var(--mode-accent-rgb), 0.4);
+  background: rgba(var(--mode-accent-rgb), 0.08);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 20px -10px rgba(var(--mode-accent-rgb), 0.15);
 }
 
 .type-choice-sheet {
@@ -72,12 +85,13 @@
   line-height: 1.08;
   letter-spacing: -0.04em;
   color: #f8f3f9;
+  font-weight: 850;
 }
 
 .type-choice-subtitle {
   max-width: 340px;
-  margin: 0 auto 22px;
-  font-size: 12px;
+  margin: 0 auto 24px;
+  font-size: 13px;
   line-height: 1.5;
   color: #9e95a2;
 }
@@ -85,25 +99,28 @@
 .type-choice-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   width: min(100%, 460px);
   margin: 0 auto;
 }
 
 .type-choice-button {
-  min-height: 112px;
-  padding: 18px 12px;
-  border: 1px solid #332d39;
-  border-radius: 20px;
-  background: #1c1821;
+  min-height: 120px;
+  padding: 20px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.02);
   color: #f7f1f8;
   font: inherit;
   cursor: pointer;
-  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .type-choice-button:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .type-choice-button span,
@@ -113,44 +130,57 @@
 }
 
 .type-choice-button span {
-  width: 38px;
-  height: 38px;
-  margin: 0 auto 9px;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 10px;
   border-radius: 12px;
   display: grid;
   place-items: center;
-  font-weight: 800;
-  font-size: 15px;
+  font-weight: 900;
+  font-size: 16px;
 }
 
 .type-choice-button strong {
-  font-size: 17px;
+  font-size: 18px;
+  font-weight: 800;
 }
 
 .type-choice-button small {
-  margin-top: 4px;
-  font-size: 9px;
-  color: #9d949f;
+  margin-top: 5px;
+  font-size: 10px;
+  color: #8c8290;
 }
 
 .type-choice-button.truth {
-  border-color: rgba(91, 134, 224, 0.34);
-  background: rgba(91, 134, 224, 0.08);
+  border-color: rgba(91, 134, 224, 0.25);
+  background: rgba(91, 134, 224, 0.04);
 }
 
 .type-choice-button.truth span {
-  background: rgba(91, 134, 224, 0.18);
-  color: #b8ccff;
+  background: rgba(91, 134, 224, 0.15);
+  color: #a9c7ff;
+}
+
+.type-choice-button.truth:hover {
+  border-color: rgba(91, 134, 224, 0.45);
+  background: rgba(91, 134, 224, 0.07);
+  box-shadow: 0 12px 24px -10px rgba(91, 134, 224, 0.2);
 }
 
 .type-choice-button.dare {
-  border-color: rgba(220, 102, 122, 0.34);
-  background: rgba(220, 102, 122, 0.08);
+  border-color: rgba(220, 102, 122, 0.25);
+  background: rgba(220, 102, 122, 0.04);
 }
 
 .type-choice-button.dare span {
-  background: rgba(220, 102, 122, 0.18);
+  background: rgba(220, 102, 122, 0.15);
   color: #ffc0ca;
+}
+
+.type-choice-button.dare:hover {
+  border-color: rgba(220, 102, 122, 0.45);
+  background: rgba(220, 102, 122, 0.07);
+  box-shadow: 0 12px 24px -10px rgba(220, 102, 122, 0.2);
 }
 
 @media (max-width: 360px) {
@@ -159,7 +189,7 @@
   }
 
   .draw-mode-grid button {
-    min-height: 60px;
+    min-height: 64px;
     padding-inline: 6px;
   }
 
@@ -168,11 +198,11 @@
   }
 
   .type-choice-button {
-    min-height: 102px;
+    min-height: 108px;
     padding-inline: 8px;
   }
 
   .type-choice-button strong {
-    font-size: 15px;
+    font-size: 16px;
   }
 }

@@ -7,20 +7,17 @@ export type Challenge = {
   text: string;
 };
 
-export const modeLabels: Record<GameMode, { label: string; emoji: string; description: string }> = {
+export const modeLabels: Record<GameMode, { label: string; description: string }> = {
   soft: {
     label: "Soft",
-    emoji: "✨",
     description: "Drôle, léger et parfait pour lancer la soirée.",
   },
   spicy: {
     label: "Spicy",
-    emoji: "🌶️",
     description: "Plus personnel, plus gênant, plus flirt.",
   },
   hot: {
     label: "Hot",
-    emoji: "🔥",
     description: "Flirt assumé et défis plus osés. Réservé aux adultes.",
   },
 };

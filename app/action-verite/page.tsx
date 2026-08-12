@@ -44,6 +44,29 @@ function haptic(pattern: number | number[] = 35) {
   }
 }
 
+function ModeIcon({ mode, className = "w-5 h-5" }: { mode: GameMode; className?: string }) {
+  if (mode === "soft") {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364-6.364l-2.121 2.121M7.757 16.243l-2.121 2.121m12.728 0l-2.121-2.121M7.757 7.757L5.636 5.636" />
+      </svg>
+    );
+  }
+  if (mode === "spicy") {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+      </svg>
+    );
+  }
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2C6.5 2 2 6.5 2 12c0 2 .5 3.5 1.5 5h17c1-1.5 1.5-3 1.5-5 0-5.5-4.5-10-10-10z" />
+      <path d="M12 6c-3.31 0-6 2.69-6 6M12 9c-1.66 0-3 1.34-3 3" />
+    </svg>
+  );
+}
+
 export default function ActionVeritePage() {
   const [players, setPlayers] = useState<string[]>([]);
   const [playerName, setPlayerName] = useState("");
@@ -281,7 +304,7 @@ export default function ActionVeritePage() {
     <main className={`app-shell theme-${mode} ${phase === "game" ? "in-game" : ""}`}>
       <header className="app-header">
         <button
-          className="brand-button"
+          className="app-back-btn"
           type="button"
           onClick={() => {
             if (phase === "game") resetGame();
@@ -290,9 +313,16 @@ export default function ActionVeritePage() {
           }}
           aria-label="Retour"
         >
-          <span className="brand-symbol">A/V</span>
-          <span className="brand-copy"><strong>Action Vérité</strong><small>jeu de soirée</small></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
         </button>
+
+        <div className="app-brand-title">
+          <span>A/V</span>
+          <strong>Action Vérité</strong>
+        </div>
 
         {phase === "setup" ? (
           <div className="step-indicator" aria-label={`Étape ${setupStep} sur 2`}>
@@ -311,16 +341,21 @@ export default function ActionVeritePage() {
               <div className="screen-intro">
                 <span className="step-label">Étape 1 sur 2</span>
                 <h1>Qui joue ce soir ?</h1>
-                <p>Ajoute les prénoms. Deux joueurs suffisent pour lancer la partie.</p>
+                <p>Ajoutez les prénoms des participants. Deux joueurs minimum pour commencer.</p>
               </div>
 
               <form className="add-player" onSubmit={addPlayer}>
                 <div className="input-shell">
-                  <span className="input-plus">+</span>
+                  <span className="input-plus">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </span>
                   <input
                     value={playerName}
                     onChange={(event) => setPlayerName(event.target.value)}
-                    placeholder="Ajouter un prénom"
+                    placeholder="Prénom du joueur"
                     maxLength={20}
                     autoComplete="off"
                     enterKeyHint="done"
@@ -339,13 +374,18 @@ export default function ActionVeritePage() {
                       {player.slice(0, 1).toUpperCase()}
                     </div>
                     <span>{player}</span>
-                    <button type="button" onClick={() => removePlayer(index)} aria-label={`Retirer ${player}`}>×</button>
+                    <button type="button" onClick={() => removePlayer(index)} aria-label={`Retirer ${player}`}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
                   </div>
                 )) : (
                   <div className="empty-players">
                     <div className="empty-icon">A/V</div>
                     <strong>La liste est vide</strong>
-                    <p>Commence par ajouter les personnes autour de toi.</p>
+                    <p>Commencez par ajouter les personnes autour de vous.</p>
                   </div>
                 )}
               </div>
@@ -353,7 +393,13 @@ export default function ActionVeritePage() {
               <div className="setup-bottom-space" />
               <div className="bottom-action-bar">
                 <button className="main-button" type="button" onClick={goToAmbiance} disabled={players.length < 2}>
-                  <span>Choisir l’ambiance</span><b>→</b>
+                  <span>Choisir l’ambiance</span>
+                  <b>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </b>
                 </button>
                 {players.length < 2 && <small>Encore {2 - players.length} joueur{2 - players.length > 1 ? "s" : ""} à ajouter</small>}
               </div>
@@ -361,10 +407,16 @@ export default function ActionVeritePage() {
           ) : (
             <div className="setup-page setup-mode">
               <div className="screen-intro has-back">
-                <button className="text-back" type="button" onClick={() => setSetupStep(1)}>← Joueurs</button>
+                <button className="text-back" type="button" onClick={() => setSetupStep(1)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="inline w-3 h-3 mr-1 align-middle">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                  </svg>
+                  Joueurs
+                </button>
                 <span className="step-label">Étape 2 sur 2</span>
                 <h1>Quelle ambiance ?</h1>
-                <p>Tu peux rester léger ou faire monter progressivement la température.</p>
+                <p>Adaptez le ton de la partie selon les joueurs présents.</p>
               </div>
 
               <div className="mode-stack">
@@ -375,13 +427,20 @@ export default function ActionVeritePage() {
                     className={`mode-option mode-${modeKey} ${mode === modeKey ? "selected" : ""}`}
                     onClick={() => chooseMode(modeKey)}
                   >
-                    <span className="mode-number">{modeMeta[modeKey].number}</span>
                     <span className="mode-text">
-                      <small>{modeMeta[modeKey].kicker}</small>
-                      <strong>{modeLabels[modeKey].label}</strong>
+                      <div className="mode-title-row">
+                        <ModeIcon mode={modeKey} className="mode-icon-svg" />
+                        <strong>{modeLabels[modeKey].label}</strong>
+                      </div>
                       <span>{modeLabels[modeKey].description}</span>
                     </span>
-                    <span className="radio-mark">{mode === modeKey ? "✓" : ""}</span>
+                    {mode === modeKey && (
+                      <span className="radio-mark">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -395,7 +454,7 @@ export default function ActionVeritePage() {
                     onClick={() => chooseDrawMode("random")}
                   >
                     <strong>Au hasard</strong>
-                    <small>Action ou Vérité est tiré automatiquement</small>
+                    <small>L’Action ou la Vérité est tirée automatiquement.</small>
                   </button>
                   <button
                     type="button"
@@ -403,14 +462,14 @@ export default function ActionVeritePage() {
                     onClick={() => chooseDrawMode("player-choice")}
                   >
                     <strong>Le joueur choisit</strong>
-                    <small>Après la roulette, il choisit Action ou Vérité</small>
+                    <small>Le joueur sélectionne sa catégorie après le tirage.</small>
                   </button>
                 </div>
               </div>
 
               {drawMode === "random" && (
                 <div className="preference-card">
-                  <div className="preference-title"><div><strong>Dans la partie</strong><span>Choisis ce que vous voulez tirer</span></div></div>
+                  <div className="preference-title"><div><strong>Catégories incluses</strong></div></div>
                   <div className="choice-grid">
                     <button
                       type="button"
@@ -421,7 +480,15 @@ export default function ActionVeritePage() {
                         haptic(15);
                       }}
                     >
-                      <span>V</span><strong>Vérités</strong><i>{allowTruth ? "✓" : ""}</i>
+                      <span>V</span>
+                      <strong>Vérités</strong>
+                      {allowTruth && (
+                        <i>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        </i>
+                      )}
                     </button>
                     <button
                       type="button"
@@ -432,7 +499,15 @@ export default function ActionVeritePage() {
                         haptic(15);
                       }}
                     >
-                      <span>A</span><strong>Actions</strong><i>{allowDare ? "✓" : ""}</i>
+                      <span>A</span>
+                      <strong>Actions</strong>
+                      {allowDare && (
+                        <i>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        </i>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -441,7 +516,13 @@ export default function ActionVeritePage() {
               {mode === "hot" && (
                 <label className="adult-confirm">
                   <input type="checkbox" checked={adultConfirmed} onChange={(event) => setAdultConfirmed(event.target.checked)} />
-                  <span className="custom-check">{adultConfirmed ? "✓" : ""}</span>
+                  <span className="custom-check">
+                    {adultConfirmed && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    )}
+                  </span>
                   <span>
                     <strong>Mode Hot réservé aux majeurs</strong>
                     <small>Je confirme que tous les participants ont 18 ans ou plus.</small>
@@ -449,13 +530,18 @@ export default function ActionVeritePage() {
                 </label>
               )}
 
-              <p className="safety-copy">Un défi ne vous convient pas ? Passez-le, sans justification.</p>
               <div className="setup-bottom-space" />
               <div className="bottom-action-bar">
                 <button className="main-button" type="button" onClick={startGame} disabled={!canStart}>
-                  <span>Lancer la partie</span><b>→</b>
+                  <span>Lancer la partie</span>
+                  <b>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </b>
                 </button>
-                {!canStart && mode === "hot" && !adultConfirmed && <small>Confirme l’âge des participants pour continuer</small>}
+                {!canStart && mode === "hot" && !adultConfirmed && <small>Confirmez la majorité des joueurs pour continuer</small>}
               </div>
             </div>
           )}
@@ -465,7 +551,7 @@ export default function ActionVeritePage() {
           <div className="game-copy">
             <span className={`mode-badge mode-${mode}`}>{modeLabels[mode].label}</span>
             <h1>{spinning ? "Ça tourne…" : "À qui le tour ?"}</h1>
-            <p>{spinning ? "Le hasard est en train de choisir." : "Appuie sur la roue ou sur le bouton pour lancer."}</p>
+            <p>{spinning ? "Le hasard choisit le joueur..." : "Faites tourner la roulette pour désigner un joueur."}</p>
           </div>
 
           <div className={`wheel-zone ${spinning ? "spinning" : ""}`}>
@@ -498,10 +584,22 @@ export default function ActionVeritePage() {
 
           <div className="game-actions">
             <button className="spin-cta" type="button" onClick={spinWheel} disabled={spinning || Boolean(selectedPlayer)}>
-              {spinning ? <><span className="loader" /> Tirage en cours</> : <>Tourner la roulette <span>→</span></>}
+              {spinning ? (
+                <>
+                  <span className="loader" /> Tirage en cours
+                </>
+              ) : (
+                <>
+                  <span>Tourner la roulette</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 ml-1">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </>
+              )}
             </button>
-            <p>
-              {round ? `Tour ${round} · ` : ""}{players.length} joueurs · {drawMode === "player-choice" ? "Choix du joueur" : allowTruth && allowDare ? "Actions + Vérités" : allowTruth ? "Vérités" : "Actions"}
+            <p className="game-stats-row">
+              {round ? `Tour ${round} · ` : ""}{players.length} joueurs · {drawMode === "player-choice" ? "Choix libre" : allowTruth && allowDare ? "Actions + Vérités" : allowTruth ? "Vérités" : "Actions"}
             </p>
           </div>
         </section>
@@ -548,7 +646,13 @@ export default function ActionVeritePage() {
             <h2 id="challenge-title">{challenge.text}</h2>
             <div className="sheet-actions">
               <button className="pass-button" type="button" onClick={replaceChallenge}>Autre carte</button>
-              <button className="next-button" type="button" onClick={nextTurn}>Tour suivant <span>→</span></button>
+              <button className="next-button" type="button" onClick={nextTurn}>
+                <span>Tour suivant</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
             </div>
             <p className="sheet-safety">Pas envie ? Changez de carte. Aucun défi n’est obligatoire.</p>
           </div>

@@ -12,17 +12,17 @@
   z-index: -1;
   inset: 0;
   background:
-    radial-gradient(circle at 18% 0%, rgba(143,116,255,.12), transparent 27rem),
-    radial-gradient(circle at 86% 22%, rgba(215,101,118,.08), transparent 25rem),
-    #0d0b10;
+    radial-gradient(circle at 20% 0%, rgba(143, 116, 255, 0.15), transparent 32rem),
+    radial-gradient(circle at 80% 25%, rgba(215, 101, 118, 0.09), transparent 28rem),
+    #070609;
 }
 
 .party-home-header {
-  height: 68px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .party-logo {
@@ -31,172 +31,266 @@
   gap: 10px;
 }
 
-.party-logo > span {
-  width: 38px;
-  height: 38px;
+.logo-symbol {
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255,255,255,.12);
   border-radius: 12px;
-  background: #1b1720;
-  font-size: 10px;
-  font-weight: 900;
+  background: rgba(143, 116, 255, 0.1);
+  border: 1px solid rgba(143, 116, 255, 0.25);
+  color: #a78bfa;
 }
 
-.party-logo strong { font-size: 14px; }
+.logo-symbol svg {
+  width: 18px;
+  height: 18px;
+}
+
+.party-logo strong {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff 30%, #e2dcf4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
 .party-home-main {
-  padding: 46px 0 30px;
+  padding: 40px 0 30px;
 }
 
 .party-hero {
-  text-align: center;
-  margin-bottom: 36px;
+  text-align: left;
+  margin-bottom: 40px;
 }
 
-.party-hero > span {
-  color: #9b8ee7;
-  font-size: 9px;
+.party-hero-eyebrow {
+  display: inline-block;
+  color: #a78bfa;
+  font-size: 10px;
   font-weight: 900;
-  letter-spacing: .16em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
 .party-hero h1 {
-  margin: 10px auto 0;
-  font-size: clamp(38px, 11vw, 58px);
-  line-height: .98;
-  letter-spacing: -.055em;
-  text-wrap: balance;
+  margin: 0;
+  font-size: clamp(38px, 11vw, 54px);
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+  font-weight: 900;
 }
 
 .party-hero p {
-  max-width: 370px;
-  margin: 14px auto 0;
-  color: #998f9b;
-  font-size: 13px;
-  line-height: 1.55;
+  max-width: 440px;
+  margin: 14px 0 0;
+  color: #9f96a4;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .party-games {
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .party-game-card {
   position: relative;
-  min-height: 190px;
-  padding: 22px;
-  border: 1px solid rgba(255,255,255,.09);
-  border-radius: 24px;
+  min-height: 200px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 28px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  background: #17141b;
-  transition: transform 150ms ease, border-color 150ms ease;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 40px -15px rgba(0, 0, 0, 0.4);
+  transition: 
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.party-game-card:active { transform: scale(.985); }
-.party-game-card.action-card { border-color: rgba(143,116,255,.24); }
-.party-game-card.never-card-home { border-color: rgba(215,139,85,.23); }
-
-.party-game-card::after {
-  content: "";
-  position: absolute;
-  width: 180px;
-  height: 180px;
-  right: -70px;
-  bottom: -90px;
-  border-radius: 50%;
-  pointer-events: none;
+.party-game-card:active {
+  transform: scale(0.96) translateY(2px);
 }
-.action-card::after { background: rgba(143,116,255,.09); }
-.never-card-home::after { background: rgba(215,139,85,.08); }
+
+.party-game-card.action-card {
+  border-color: rgba(143, 116, 255, 0.16);
+}
+
+.party-game-card.action-card:hover {
+  border-color: rgba(143, 116, 255, 0.35);
+  background: rgba(143, 116, 255, 0.05);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 24px 48px -12px rgba(143, 116, 255, 0.12);
+}
+
+.party-game-card.never-card-home {
+  border-color: rgba(215, 139, 85, 0.16);
+}
+
+.party-game-card.never-card-home:hover {
+  border-color: rgba(215, 139, 85, 0.35);
+  background: rgba(215, 139, 85, 0.05);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 24px 48px -12px rgba(215, 139, 85, 0.12);
+}
 
 .party-card-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
 
 .party-game-icon {
-  width: 45px;
-  height: 45px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   border-radius: 14px;
-  font-size: 11px;
-  font-weight: 900;
-  background: rgba(255,255,255,.055);
-  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e2dcf4;
+  transition: transform 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.party-game-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.party-game-card:hover .party-game-icon {
+  transform: scale(1.05);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .party-arrow {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgba(255,255,255,.055);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   color: #cfc6d1;
-  font-size: 18px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.party-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+.party-game-card:hover .party-arrow {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.party-card-content {
+  margin-top: 24px;
 }
 
 .party-game-card h2 {
-  margin: 28px 0 0;
-  text-align: center;
-  font-size: 25px;
-  letter-spacing: -.035em;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .party-game-card p {
-  max-width: 390px;
-  margin: 7px auto 0;
-  color: #8e8591;
-  text-align: center;
-  font-size: 11px;
-  line-height: 1.45;
+  margin: 8px 0 0;
+  color: #928b96;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .party-card-tags {
   display: flex;
-  justify-content: center;
   gap: 6px;
   margin-top: 18px;
 }
 
 .party-card-tags span {
-  padding: 6px 8px;
+  padding: 5px 9px;
   border-radius: 999px;
-  background: rgba(255,255,255,.045);
-  color: #7e7581;
-  font-size: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #8c8290;
+  font-size: 9px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: .07em;
+  letter-spacing: 0.08em;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.party-game-card:hover .party-card-tags span {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #a89fae;
+}
+
+.party-footer {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .party-footer-note {
-  margin: 26px 0 0;
+  margin: 0;
   text-align: center;
-  color: #5f5862;
-  font-size: 9px;
+  color: #635c67;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 @media (min-width: 540px) {
-  .party-games { grid-template-columns: 1fr 1fr; }
-  .party-game-card { min-height: 260px; }
+  .party-games {
+    grid-template-columns: 1fr 1fr;
+  }
+  .party-game-card {
+    min-height: 250px;
+  }
 }
 
 @media (max-width: 390px) {
-  .party-home { padding-inline: 13px; }
-  .party-home-header { height: 62px; }
-  .party-home-main { padding-top: 34px; }
-  .party-hero { margin-bottom: 28px; }
-  .party-hero h1 { font-size: 39px; }
-  .party-game-card { min-height: 176px; border-radius: 21px; padding: 18px; }
-  .party-game-card h2 { margin-top: 22px; font-size: 23px; }
+  .party-home {
+    padding-inline: 13px;
+  }
+  .party-home-header {
+    height: 62px;
+  }
+  .party-home-main {
+    padding-top: 32px;
+  }
+  .party-hero {
+    margin-bottom: 28px;
+  }
+  .party-hero h1 {
+    font-size: 40px;
+  }
+  .party-game-card {
+    min-height: 180px;
+    border-radius: 24px;
+    padding: 20px;
+  }
+  .party-game-card h2 {
+    font-size: 21px;
+  }
 }

@@ -7,18 +7,18 @@
 }
 
 .app-shell.theme-soft {
-  --mode-accent: #76a987;
-  --mode-accent-rgb: 118, 169, 135;
+  --mode-accent: #10b981;
+  --mode-accent-rgb: 16, 185, 129;
 }
 
 .app-shell.theme-spicy {
-  --mode-accent: #d78b55;
-  --mode-accent-rgb: 215, 139, 85;
+  --mode-accent: #f97316;
+  --mode-accent-rgb: 249, 115, 22;
 }
 
 .app-shell.theme-hot {
-  --mode-accent: #d76576;
-  --mode-accent-rgb: 215, 101, 118;
+  --mode-accent: #f43f5e;
+  --mode-accent-rgb: 244, 63, 94;
 }
 
 .app-shell::before {
@@ -28,9 +28,9 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% -12%, rgba(var(--mode-accent-rgb), 0.09), transparent 34rem),
-    #0d0b10;
-  transition: background 260ms ease;
+    radial-gradient(circle at 50% -12%, rgba(var(--mode-accent-rgb), 0.12), transparent 34rem),
+    #070609;
+  transition: background 300ms ease;
 }
 
 .brand-symbol {
@@ -41,36 +41,76 @@
   background: color-mix(in srgb, var(--mode-accent) 76%, white);
 }
 
+.input-shell {
+  border-color: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.015);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 .input-shell:focus-within {
-  border-color: rgba(var(--mode-accent-rgb), 0.58);
-  box-shadow: 0 0 0 3px rgba(var(--mode-accent-rgb), 0.07);
+  border-color: rgba(var(--mode-accent-rgb), 0.5);
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 3px rgba(var(--mode-accent-rgb), 0.08);
 }
 
 .main-button:not(:disabled),
 .spin-cta:not(:disabled),
 .next-button:not(:disabled) {
-  box-shadow: 0 10px 28px rgba(var(--mode-accent-rgb), 0.08);
+  box-shadow: 
+    0 12px 30px -10px rgba(var(--mode-accent-rgb), 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background: #f4eff3;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.main-button:not(:disabled):hover,
+.spin-cta:not(:disabled):hover,
+.next-button:not(:disabled):hover {
+  background: #fff;
+  box-shadow: 
+    0 16px 36px -8px rgba(var(--mode-accent-rgb), 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .mode-option.selected {
-  border-color: rgba(var(--mode-accent-rgb), 0.44);
+  border-color: rgba(var(--mode-accent-rgb), 0.35);
+  background: rgba(var(--mode-accent-rgb), 0.05);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 24px -10px rgba(var(--mode-accent-rgb), 0.15);
 }
 
 .preference-card {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.015);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
   transition: border-color 180ms ease, background 180ms ease;
 }
 
 .choice-grid button {
   min-height: 58px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.01);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.choice-grid button:active {
+  transform: scale(0.975);
 }
 
 .choice-grid button.selected {
   border-color: rgba(var(--mode-accent-rgb), 0.3);
+  background: rgba(var(--mode-accent-rgb), 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .choice-grid button.selected > span {
-  background: rgba(var(--mode-accent-rgb), 0.16);
-  color: color-mix(in srgb, var(--mode-accent) 72%, white);
+  background: rgba(var(--mode-accent-rgb), 0.15);
+  color: color-mix(in srgb, var(--mode-accent) 80%, white);
 }
 
 .game-screen {
@@ -78,9 +118,9 @@
 }
 
 .mode-badge {
-  border-color: rgba(var(--mode-accent-rgb), 0.35) !important;
-  background: rgba(var(--mode-accent-rgb), 0.06);
-  color: color-mix(in srgb, var(--mode-accent) 58%, #d9d0da);
+  border-color: rgba(var(--mode-accent-rgb), 0.3) !important;
+  background: rgba(var(--mode-accent-rgb), 0.08);
+  color: color-mix(in srgb, var(--mode-accent) 80%, #d9d0da);
 }
 
 .wheel-zone {
@@ -89,7 +129,7 @@
 }
 
 .wheel-zone::before {
-  background: radial-gradient(circle, rgba(var(--mode-accent-rgb), 0.11), transparent 67%);
+  background: radial-gradient(circle, rgba(var(--mode-accent-rgb), 0.14), transparent 67%);
 }
 
 .wheel {
@@ -97,6 +137,7 @@
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  border-color: #201a24;
 }
 
 .wheel:focus-visible {
@@ -104,11 +145,14 @@
 }
 
 .wheel-hub {
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  background: #f4eff3;
+  color: #070609;
+  border-color: rgba(7, 6, 9, 0.25);
+  transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 140ms ease;
 }
 
 .wheel:active:not(:disabled) .wheel-hub {
-  transform: translate(-50%, -50%) scale(0.96);
+  transform: translate(-50%, -50%) scale(0.95);
 }
 
 .wheel-name {
@@ -123,30 +167,36 @@
 }
 
 .challenge-backdrop {
-  background: rgba(5, 4, 7, 0.78);
+  background: rgba(5, 4, 7, 0.76);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .challenge-sheet {
   max-height: 88dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-color: rgba(var(--mode-accent-rgb), 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 0;
+  background: #0f0d13;
+  border-color: rgba(var(--mode-accent-rgb), 0.22);
   box-shadow:
-    0 -24px 70px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(var(--mode-accent-rgb), 0.08);
+    0 -24px 70px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .sheet-handle {
-  background: rgba(var(--mode-accent-rgb), 0.34);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .challenge-mode {
-  color: color-mix(in srgb, var(--mode-accent) 60%, #aaa0ac);
+  color: color-mix(in srgb, var(--mode-accent) 70%, #aaa0ac);
 }
 
 .chosen-player > span {
-  border-color: rgba(var(--mode-accent-rgb), 0.34);
+  border: 1px solid rgba(var(--mode-accent-rgb), 0.25);
   background: rgba(var(--mode-accent-rgb), 0.12);
+  color: #fff;
 }
 
 .pass-button,
@@ -160,12 +210,39 @@
   min-height: 44px;
 }
 
+.pass-button {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.pass-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
 .pass-button:active,
 .next-button:active,
 .main-button:active:not(:disabled),
 .spin-cta:active:not(:disabled),
 .input-shell button:active:not(:disabled) {
-  transform: scale(0.985);
+  transform: scale(0.975);
+}
+
+.player-row > button {
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.player-row > button:hover {
+  color: #f43f5e;
+}
+
+.player-row > button svg {
+  width: 16px;
+  height: 16px;
 }
 
 @media (max-width: 430px) {

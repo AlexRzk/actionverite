@@ -11,7 +11,9 @@ const pools: Record<NeverMode, NeverMode[]> = {
 };
 
 function haptic(pattern: number | number[] = 24) {
-  if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(pattern);
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    navigator.vibrate(pattern);
+  }
 }
 
 export default function NeverHaveIEverPage() {
@@ -63,9 +65,23 @@ export default function NeverHaveIEverPage() {
   return (
     <main className={`never-app never-${mode}`}>
       <header className="never-header">
-        <Link href="/" className="never-back" aria-label="Retour aux jeux">←</Link>
-        <div className="never-brand"><span>J/N</span><strong>Je n’ai jamais</strong></div>
-        {started ? <button type="button" onClick={reset}>Changer</button> : <span className="never-header-spacer" />}
+        <Link href="/" className="never-back" aria-label="Retour aux jeux">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </Link>
+        <div className="never-brand">
+          <span>J/N</span>
+          <strong>Je n’ai jamais</strong>
+        </div>
+        {started ? (
+          <button type="button" className="never-reset-btn" onClick={reset}>
+            Changer
+          </button>
+        ) : (
+          <span className="never-header-spacer" />
+        )}
       </header>
 
       {!started ? (
@@ -78,34 +94,86 @@ export default function NeverHaveIEverPage() {
 
           <div className="never-modes">
             {(Object.keys(neverModeLabels) as NeverMode[]).map((key) => (
-              <button key={key} type="button" className={mode === key ? "selected" : ""} onClick={() => chooseMode(key)}>
-                <strong>{neverModeLabels[key].label}</strong>
-                <span>{neverModeLabels[key].description}</span>
-                <i>{mode === key ? "✓" : ""}</i>
+              <button
+                key={key}
+                type="button"
+                className={`never-mode-btn ${mode === key ? "selected" : ""}`}
+                onClick={() => chooseMode(key)}
+              >
+                <div className="mode-btn-content">
+                  <strong>{neverModeLabels[key].label}</strong>
+                  <span>{neverModeLabels[key].description}</span>
+                </div>
+                {mode === key && (
+                  <span className="never-mode-checked">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                )}
               </button>
             ))}
           </div>
 
           {mode === "hot" && (
             <label className="never-adult">
-              <input type="checkbox" checked={adultConfirmed} onChange={(event) => setAdultConfirmed(event.target.checked)} />
-              <span>{adultConfirmed ? "✓" : ""}</span>
-              <div><strong>18+ uniquement</strong><small>Je confirme que tous les participants sont majeurs.</small></div>
+              <input
+                type="checkbox"
+                checked={adultConfirmed}
+                onChange={(event) => setAdultConfirmed(event.target.checked)}
+              />
+              <span className="never-adult-check">
+                {adultConfirmed && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                )}
+              </span>
+              <div className="never-adult-text">
+                <strong>18+ uniquement</strong>
+                <small>Je confirme que tous les participants sont majeurs.</small>
+              </div>
             </label>
           )}
 
-          <button className="never-start" type="button" onClick={start} disabled={mode === "hot" && !adultConfirmed}>Commencer</button>
+          <button
+            className="never-start"
+            type="button"
+            onClick={start}
+            disabled={mode === "hot" && !adultConfirmed}
+          >
+            Commencer
+          </button>
         </section>
       ) : (
         <section className="never-game">
-          <div className="never-progress"><span>{neverModeLabels[mode].label}</span><span>Carte {round}</span></div>
+          <div className="never-progress">
+            <span>{neverModeLabels[mode].label}</span>
+            <span>Carte {round}</span>
+          </div>
+          
           <button className="never-card" type="button" onClick={drawCard} aria-label="Carte suivante">
             <small>JE N’AI JAMAIS</small>
             <h1>{card ? card.replace(/^Je n[’']ai jamais\s*/i, "") : "…"}</h1>
-            <span>Touche la carte pour continuer</span>
+            <span className="never-card-tip">Touche la carte pour continuer</span>
           </button>
-          <div className="never-rule"><span>☝️</span><p>Si tu l’as déjà fait, signale-toi. Les détails viennent naturellement.</p></div>
-          <button className="never-next" type="button" onClick={drawCard}>Carte suivante <span>→</span></button>
+
+          <div className="never-rule">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p>Si tu l’as déjà fait, signale-toi. Les détails viennent naturellement.</p>
+          </div>
+
+          <button className="never-next" type="button" onClick={drawCard}>
+            <span>Carte suivante</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
         </section>
       )}
     </main>

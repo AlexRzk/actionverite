@@ -37,7 +37,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr" className={manrope.variable}>
-      <body className={manrope.className}>{children}</body>
+      <body className={manrope.className}>
+        <div className="noise-overlay" />
+        {children}
+      </body>
     </html>
   );
 }
