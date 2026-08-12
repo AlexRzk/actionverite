@@ -3,9 +3,11 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import "./mobile-polish.css";
 import "./centered-mobile.css";
+import "./game-menu.css";
 import "./hub.css";
 import "./never.css";
 import "./action-choice.css";
+import "./visual-overhaul.css";
 
 const manrope = Manrope({
   subsets: ["latin"],

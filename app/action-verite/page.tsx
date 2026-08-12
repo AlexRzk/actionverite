@@ -1,6 +1,7 @@
 "use client";
 
 import { CSSProperties, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { GameMenu } from "@/app/components/game-menu";
 import {
   Challenge,
   ChallengeType,
@@ -12,18 +13,14 @@ import {
 type DrawMode = "random" | "player-choice";
 
 const wheelColors = [
-  "#7456e8",
-  "#d95887",
-  "#d9824b",
-  "#4f7fd8",
-  "#4b9b7b",
-  "#a55fc5",
-  "#c95b5b",
-  "#4e91a5",
-  "#8a61d0",
-  "#cf7044",
-  "#68a05f",
-  "#5f69ca",
+  "#e4bd68",
+  "#d5765d",
+  "#7da7a0",
+  "#8b7bc5",
+  "#e4bd68",
+  "#d5765d",
+  "#7da7a0",
+  "#8b7bc5",
 ];
 
 const modePools: Record<GameMode, GameMode[]> = {
@@ -74,7 +71,6 @@ export default function ActionVeritePage() {
   const [drawMode, setDrawMode] = useState<DrawMode>("random");
   const [allowTruth, setAllowTruth] = useState(true);
   const [allowDare, setAllowDare] = useState(true);
-  const [adultConfirmed, setAdultConfirmed] = useState(false);
   const [phase, setPhase] = useState<"setup" | "game">("setup");
   const [setupStep, setSetupStep] = useState<1 | 2>(1);
   const [spinning, setSpinning] = useState(false);
@@ -157,7 +153,7 @@ export default function ActionVeritePage() {
       const start = index * slice;
       const end = (index + 1) * slice;
       const color = wheelColors[index % wheelColors.length];
-      return [`${color} ${start}deg`, `${color} ${end}deg`];
+      return [`${color} ${start}deg`, `${color} ${end - 1.2}deg`, `#30282d ${end - 1.2}deg`, `#30282d ${end}deg`];
     });
     return `conic-gradient(${stops.join(", ")})`;
   }, [players]);
@@ -182,7 +178,6 @@ export default function ActionVeritePage() {
 
   function chooseMode(nextMode: GameMode) {
     setMode(nextMode);
-    if (nextMode !== "hot") setAdultConfirmed(false);
     haptic(20);
   }
 
@@ -205,7 +200,6 @@ export default function ActionVeritePage() {
   function startGame() {
     if (players.length < 2) return;
     if (drawMode === "random" && !allowTruth && !allowDare) return;
-    if (mode === "hot" && !adultConfirmed) return;
 
     usedChallenges.current.clear();
     setChallenge(null);
@@ -297,8 +291,7 @@ export default function ActionVeritePage() {
 
   const canStart =
     players.length >= 2 &&
-    (drawMode === "player-choice" || allowTruth || allowDare) &&
-    (mode !== "hot" || adultConfirmed);
+    (drawMode === "player-choice" || allowTruth || allowDare);
 
   return (
     <main className={`app-shell theme-${mode} ${phase === "game" ? "in-game" : ""}`}>
@@ -319,10 +312,7 @@ export default function ActionVeritePage() {
           </svg>
         </button>
 
-        <div className="app-brand-title">
-          <span>A/V</span>
-          <strong>Action Vérité</strong>
-        </div>
+        <GameMenu current="action" />
 
         {phase === "setup" ? (
           <div className="step-indicator" aria-label={`Étape ${setupStep} sur 2`}>
@@ -513,23 +503,6 @@ export default function ActionVeritePage() {
                 </div>
               )}
 
-              {mode === "hot" && (
-                <label className="adult-confirm">
-                  <input type="checkbox" checked={adultConfirmed} onChange={(event) => setAdultConfirmed(event.target.checked)} />
-                  <span className="custom-check">
-                    {adultConfirmed && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    )}
-                  </span>
-                  <span>
-                    <strong>Mode Hot réservé aux majeurs</strong>
-                    <small>Je confirme que tous les participants ont 18 ans ou plus.</small>
-                  </span>
-                </label>
-              )}
-
               <div className="setup-bottom-space" />
               <div className="bottom-action-bar">
                 <button className="main-button" type="button" onClick={startGame} disabled={!canStart}>
@@ -541,7 +514,7 @@ export default function ActionVeritePage() {
                     </svg>
                   </b>
                 </button>
-                {!canStart && mode === "hot" && !adultConfirmed && <small>Confirmez la majorité des joueurs pour continuer</small>}
+                {!canStart && <small>Sélectionnez au moins deux joueurs pour continuer</small>}
               </div>
             </div>
           )}

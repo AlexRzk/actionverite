@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
+import { GameMenu } from "@/app/components/game-menu";
 import { NeverMode, neverCards, neverModeLabels } from "@/data/never-have-i-ever";
 
 const pools: Record<NeverMode, NeverMode[]> = {
@@ -19,7 +20,6 @@ function haptic(pattern: number | number[] = 24) {
 export default function NeverHaveIEverPage() {
   const [mode, setMode] = useState<NeverMode>("soft");
   const [started, setStarted] = useState(false);
-  const [adultConfirmed, setAdultConfirmed] = useState(false);
   const [card, setCard] = useState<string | null>(null);
   const [round, setRound] = useState(0);
   const used = useRef<Set<string>>(new Set());
@@ -28,7 +28,6 @@ export default function NeverHaveIEverPage() {
 
   function chooseMode(nextMode: NeverMode) {
     setMode(nextMode);
-    if (nextMode !== "hot") setAdultConfirmed(false);
     used.current.clear();
     haptic();
   }
@@ -47,7 +46,6 @@ export default function NeverHaveIEverPage() {
   }
 
   function start() {
-    if (mode === "hot" && !adultConfirmed) return;
     used.current.clear();
     setRound(0);
     setStarted(true);
@@ -71,10 +69,7 @@ export default function NeverHaveIEverPage() {
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
         </Link>
-        <div className="never-brand">
-          <span>J/N</span>
-          <strong>Je n’ai jamais</strong>
-        </div>
+        <GameMenu current="never" />
         {started ? (
           <button type="button" className="never-reset-btn" onClick={reset}>
             Changer
@@ -115,32 +110,10 @@ export default function NeverHaveIEverPage() {
             ))}
           </div>
 
-          {mode === "hot" && (
-            <label className="never-adult">
-              <input
-                type="checkbox"
-                checked={adultConfirmed}
-                onChange={(event) => setAdultConfirmed(event.target.checked)}
-              />
-              <span className="never-adult-check">
-                {adultConfirmed && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                )}
-              </span>
-              <div className="never-adult-text">
-                <strong>18+ uniquement</strong>
-                <small>Je confirme que tous les participants sont majeurs.</small>
-              </div>
-            </label>
-          )}
-
           <button
             className="never-start"
             type="button"
             onClick={start}
-            disabled={mode === "hot" && !adultConfirmed}
           >
             Commencer
           </button>
